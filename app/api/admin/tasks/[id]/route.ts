@@ -22,7 +22,7 @@ export async function PATCH(request: Request, { params }: Params) {
     const weekdays =
       payload.frequencyType === FrequencyType.WEEKDAYS
         ? (payload.weekdays?.length ? payload.weekdays : [1, 2, 3, 4, 5])
-        : Prisma.JsonNull;
+        : Prisma.DbNull;
 
     const task = await prisma.taskTemplate.updateMany({
       where: { id, householdId: auth.session.householdId },
@@ -41,8 +41,10 @@ export async function PATCH(request: Request, { params }: Params) {
     }
 
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: "Could not update task." }, { status: 500 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unexpected server error while updating task.";
+    return NextResponse.json({ error: `Could not update task. ${message}` }, { status: 500 });
   }
 }
 

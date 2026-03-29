@@ -23,6 +23,20 @@ type FormState = {
   isActive: boolean;
 };
 
+type PresetTask = {
+  key:
+    | "presetPrepareBreakfast"
+    | "presetLaundry"
+    | "presetKitchenClean"
+    | "presetVacuum"
+    | "presetBathroom"
+    | "presetTrash";
+  timeBlock: TimeBlock;
+  frequencyType: FrequencyType;
+  weekdays?: number[];
+  notes?: string;
+};
+
 const initialForm: FormState = {
   title: "",
   notes: "",
@@ -41,7 +55,17 @@ export function TaskManager() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [presetLoadingKey, setPresetLoadingKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const presets: PresetTask[] = [
+    { key: "presetPrepareBreakfast", timeBlock: TIME_BLOCK.MORNING, frequencyType: FREQUENCY_TYPE.DAILY, notes: "Simple and healthy meal" },
+    { key: "presetLaundry", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 3, 5] },
+    { key: "presetKitchenClean", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
+    { key: "presetVacuum", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 3, 5] },
+    { key: "presetBathroom", timeBlock: TIME_BLOCK.MORNING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [2, 4, 6] },
+    { key: "presetTrash", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
+  ];
 
   async function loadTasks() {
     const response = await fetch("/api/admin/tasks", { cache: "no-store" });
@@ -108,6 +132,35 @@ export function TaskManager() {
     }
   }
 
+  async function addPresetTask(preset: PresetTask) {
+    setPresetLoadingKey(preset.key);
+    setError(null);
+    try {
+      const payload = {
+        title: a[preset.key],
+        notes: preset.notes ?? null,
+        timeBlock: preset.timeBlock,
+        frequencyType: preset.frequencyType,
+        weekdays: preset.frequencyType === FREQUENCY_TYPE.WEEKDAYS ? (preset.weekdays ?? [1, 2, 3, 4, 5]) : [],
+        isActive: true,
+      };
+      const response = await fetch("/api/admin/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error ?? "Save failed");
+      }
+      await loadTasks();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Save failed");
+    } finally {
+      setPresetLoadingKey(null);
+    }
+  }
+
   async function deleteTask(id: string) {
     const confirmed = window.confirm(a.deleteConfirm);
     if (!confirmed) return;
@@ -131,6 +184,42 @@ export function TaskManager() {
 
   return (
     <div style={{ display: "grid", gap: "1rem" }}>
+      <section className="card" style={{ padding: "1rem" }}>
+        <h2 style={{ marginTop: 0 }}>{a.quickAddTitle}</h2>
+        <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>{a.quickAddHint}</p>
+        <div style={{ display: "grid", gap: "0.6rem", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+          {presets.map((preset) => (
+            <div
+              key={preset.key}
+              style={{
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "0.7rem",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "0.6rem",
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 600 }}>{a[preset.key]}</div>
+                <div style={{ color: "var(--muted)", fontSize: "0.82rem" }}>
+                  {preset.timeBlock.toLowerCase()} · {preset.frequencyType === FREQUENCY_TYPE.DAILY ? a.daily : a.selectedWeekdays}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => addPresetTask(preset)}
+                disabled={presetLoadingKey === preset.key}
+              >
+                {presetLoadingKey === preset.key ? a.saving : a.addNow}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="card" style={{ padding: "1rem" }}>
         <h2 style={{ marginTop: 0 }}>{formTitle}</h2>
         <form onSubmit={saveTask}>

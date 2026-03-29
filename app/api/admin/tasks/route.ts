@@ -27,6 +27,10 @@ export async function POST(request: Request) {
   if (auth.error || !auth.session) return auth.error;
 
   try {
+    if (!auth.session.householdId) {
+      return NextResponse.json({ error: "Missing household context." }, { status: 400 });
+    }
+
     const body = await request.json();
     const parsed = taskTemplateSchema.safeParse(body);
     if (!parsed.success) {
@@ -37,7 +41,7 @@ export async function POST(request: Request) {
     const weekdays =
       payload.frequencyType === FrequencyType.WEEKDAYS
         ? (payload.weekdays?.length ? payload.weekdays : [1, 2, 3, 4, 5])
-        : Prisma.JsonNull;
+        : Prisma.DbNull;
 
     const task = await prisma.taskTemplate.create({
       data: {
@@ -52,7 +56,9 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(task, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Could not create task." }, { status: 500 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unexpected server error while creating task.";
+    return NextResponse.json({ error: `Could not create task. ${message}` }, { status: 500 });
   }
 }

@@ -54,6 +54,17 @@ export function LandingClient() {
         </div>
       </section>
 
+      {/* SEO keyword section — visible, crawlable, useful to visitors */}
+      <section className="landing-seo">
+        <h2>{l.seoTitle}</h2>
+        <p>{l.seoParagraph}</p>
+        <div className="landing-seo-tags">
+          {l.seoTags.map((tag) => (
+            <span key={tag} className="landing-seo-tag">{tag}</span>
+          ))}
+        </div>
+      </section>
+
       <section className="landing-how">
         <h2>{l.howTitle}</h2>
         <div className="landing-steps">

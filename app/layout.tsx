@@ -3,13 +3,89 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MaidBoard",
-  description: "Household task board for families with domestic helpers.",
+  title: {
+    default: "MaidBoard — 工人 Checklist | 家務清單 App | 香港家庭適用",
+    template: "%s | MaidBoard",
+  },
+  description:
+    "MaidBoard 係香港家庭專用嘅工人工作表 App。輕鬆建立家務 checklist、管理工人每日工作，用 iPad 做共用看板，免費使用。",
+  keywords: [
+    "工人 checklist",
+    "家務清單",
+    "工人每日工作",
+    "工人工作表",
+    "helper 工作表",
+    "家務 checklist",
+    "工人 app",
+    "家務助理",
+    "香港工人",
+    "domestic helper checklist",
+    "maid task board",
+    "household chores app",
+    "helper daily tasks",
+    "hong kong helper app",
+  ],
+  authors: [{ name: "MaidBoard" }],
+  creator: "MaidBoard",
+  metadataBase: new URL("https://hk-maid-board.vercel.app"),
+  alternates: {
+    canonical: "/",
+    languages: {
+      "zh-HK": "/",
+      en: "/",
+    },
+  },
+  openGraph: {
+    title: "MaidBoard — 工人 Checklist | 家務清單 App",
+    description:
+      "香港家庭專用嘅工人工作表。輕鬆管理工人每日工作、家務 checklist，免費即用。",
+    url: "https://hk-maid-board.vercel.app",
+    siteName: "MaidBoard",
+    locale: "zh_HK",
+    alternateLocale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MaidBoard — 工人 Checklist | 家務清單 App",
+    description:
+      "香港家庭專用嘅工人工作表。輕鬆管理工人每日工作、家務 checklist，免費即用。",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="zh-HK">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "MaidBoard",
+              applicationCategory: "LifestyleApplication",
+              operatingSystem: "Web",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "HKD",
+              },
+              description:
+                "香港家庭專用嘅工人 checklist App。管理家務清單、工人每日工作、helper 工作表，免費使用。",
+              inLanguage: ["zh-HK", "en"],
+              availableLanguage: [
+                { "@type": "Language", name: "Chinese (Traditional, Hong Kong)" },
+                { "@type": "Language", name: "English" },
+              ],
+            }),
+          }}
+        />
+      </head>
       <body>
         {children}
         <Analytics />

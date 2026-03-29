@@ -267,6 +267,50 @@
   font-size: 1.05rem;
 }
 
+/* ── SEO keyword section ── */
+
+.landing-seo {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 2rem 3rem;
+  text-align: center;
+}
+
+.landing-seo h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: #1c1c1e;
+  letter-spacing: -0.02em;
+}
+
+.landing-seo p {
+  font-size: 0.95rem;
+  color: #636366;
+  line-height: 1.65;
+  margin: 0 0 1.2rem;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landing-seo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.landing-seo-tag {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 980px;
+  background: rgba(120, 120, 128, 0.06);
+  color: #636366;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
 /* ── Footer ── */
 
 .landing-footer {

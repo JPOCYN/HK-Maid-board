@@ -47,6 +47,7 @@ export function HistoryDay({ date }: { date: string }) {
   return (
     <section className="card" style={{ padding: "1rem" }}>
       <h2 style={{ marginTop: 0 }}>{a.detailsFor} {date}</h2>
+      <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>{a.historyDayHint}</p>
       {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
       <div className="kpi-grid">
         <div className="kpi-card">

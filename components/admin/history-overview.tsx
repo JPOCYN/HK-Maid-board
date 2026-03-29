@@ -36,6 +36,7 @@ export function HistoryOverview() {
   return (
     <section className="card" style={{ padding: "1rem" }}>
       <h2 style={{ marginTop: 0 }}>{a.last7Days}</h2>
+      <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>{a.historyHint}</p>
       {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
       <div style={{ display: "grid", gap: "0.65rem" }}>
         {rows.map((day) => (

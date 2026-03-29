@@ -312,6 +312,9 @@ export function TaskManager() {
 
       <section className="card" style={{ padding: "1rem" }}>
         <h2 style={{ marginTop: 0 }}>{formTitle}</h2>
+        <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>
+          {a.taskTitleHint}
+        </p>
         <form onSubmit={saveTask}>
           <div style={{ display: "grid", gap: "0.8rem", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
             <div>

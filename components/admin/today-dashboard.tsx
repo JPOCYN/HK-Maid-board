@@ -5,6 +5,8 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { useTranslation } from "@/lib/i18n/context";
 import { TaskStatus, TimeBlock } from "@/lib/task-constants";
 
+const HOME_CODE_CACHE_KEY = "maidboard:admin:home-code";
+
 type Task = {
   id: string;
   title: string;
@@ -37,6 +39,16 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   const [copiedCode, setCopiedCode] = useState(false);
   const [resettingUrl, setResettingUrl] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [cachedHomeCode, setCachedHomeCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(HOME_CODE_CACHE_KEY);
+      if (stored) setCachedHomeCode(stored);
+    } catch {
+      // Ignore storage errors in private mode or restricted browsers.
+    }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -44,6 +56,14 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
       if (!response.ok) throw new Error("Failed");
       const payload: Response = await response.json();
       setData(payload);
+      if (payload.homeCode) {
+        setCachedHomeCode(payload.homeCode);
+        try {
+          window.localStorage.setItem(HOME_CODE_CACHE_KEY, payload.homeCode);
+        } catch {
+          // Ignore storage write failures.
+        }
+      }
       setError(null);
     } catch {
       setError("Unable to load dashboard data right now.");
@@ -67,14 +87,17 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   }
 
   function copyHomeCode() {
-    if (!data?.homeCode) return;
-    navigator.clipboard.writeText(data.homeCode).then(() => {
+    const code = data?.homeCode ?? cachedHomeCode;
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(() => {
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
     });
   }
 
   async function resetBoardUrl() {
+    const confirmed = window.confirm(a.confirmResetUrl);
+    if (!confirmed) return;
     setResettingUrl(true);
     try {
       const response = await fetch("/api/admin/board-url/reset", { method: "POST" });
@@ -88,10 +111,21 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   }
 
   async function regenerateHomeCode() {
+    const confirmed = window.confirm(a.confirmRegenerateCode);
+    if (!confirmed) return;
     setRegenerating(true);
     try {
       const response = await fetch("/api/admin/home-code/regenerate", { method: "POST" });
       if (!response.ok) throw new Error("Failed");
+      const payload = (await response.json()) as { homeCode?: string };
+      if (payload.homeCode) {
+        setCachedHomeCode(payload.homeCode);
+        try {
+          window.localStorage.setItem(HOME_CODE_CACHE_KEY, payload.homeCode);
+        } catch {
+          // Ignore storage write failures.
+        }
+      }
       await load();
     } catch {
       setError("Could not regenerate home code.");
@@ -100,11 +134,23 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
     }
   }
 
+  const displayHomeCode = data?.homeCode ?? cachedHomeCode;
+
   return (
     <div style={{ display: "grid", gap: "1rem" }}>
-      {data?.homeCode ? (
+      <section className="card" style={{ padding: "1rem" }}>
+        <h3 style={{ marginTop: 0, marginBottom: "0.6rem" }}>{a.quickGuideTitle}</h3>
+        <div style={{ display: "grid", gap: "0.35rem", color: "var(--muted)", fontSize: "0.95rem" }}>
+          <div>1. {a.quickGuideStep1}</div>
+          <div>2. {a.quickGuideStep2}</div>
+          <div>3. {a.quickGuideStep3}</div>
+        </div>
+      </section>
+
+      {displayHomeCode ? (
         <section className="card" style={{ padding: "1rem" }}>
           <h3 style={{ marginTop: 0 }}>{a.yourHomeCode}</h3>
+          <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>{a.homeCodeHint}</p>
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
             <code
               style={{
@@ -116,7 +162,7 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
                 letterSpacing: "0.1em",
               }}
             >
-              {data.homeCode}
+              {displayHomeCode}
             </code>
             <button type="button" className="btn btn-secondary" onClick={copyHomeCode}>
               {copiedCode ? a.copied : a.copyUrl}
@@ -136,7 +182,9 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
       {(data?.boardToken ?? boardToken) ? (
         <section className="card" style={{ padding: "1rem" }}>
           <h3 style={{ marginTop: 0 }}>{a.boardUrl}</h3>
-          <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>{a.boardUrlHint}</p>
+          <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>
+            {a.boardUrlHint} {a.boardUrlSimpleHint}
+          </p>
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
             <code style={{ background: "#f1f5f9", padding: "0.4rem 0.7rem", borderRadius: 8, fontSize: "0.9rem", wordBreak: "break-all" }}>
               {typeof window !== "undefined"

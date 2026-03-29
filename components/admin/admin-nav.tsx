@@ -21,7 +21,10 @@ export function AdminNav({ boardToken }: { boardToken?: string }) {
     <header className="card" style={{ padding: "0.8rem 1rem", marginBottom: "1rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flexWrap: "wrap" }}>
-          <strong style={{ marginRight: "0.4rem" }}>MaidBoard Admin</strong>
+          <div style={{ marginRight: "0.6rem" }}>
+            <div style={{ fontWeight: 700 }}>{a.portalTitle}</div>
+            <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>{a.portalSubtitle}</div>
+          </div>
           {links.map((link) => {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
             return (

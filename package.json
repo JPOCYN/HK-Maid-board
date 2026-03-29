@@ -22,6 +22,7 @@
   "description": "Household task board for families with domestic helpers.",
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.1.0",
     "jose": "^6.2.2",

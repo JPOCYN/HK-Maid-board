@@ -121,8 +121,8 @@ Change these values in `.env` before production.
 
 Set these environment variables in Vercel:
 
-- `DATABASE_URL` (Supabase pooled connection string)
-- `DIRECT_URL` (Supabase direct connection string)
+- `POSTGRES_PRISMA_URL` (Supabase pooled connection string)
+- `POSTGRES_URL_NON_POOLING` (Supabase direct connection string)
 - `JWT_SECRET`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`

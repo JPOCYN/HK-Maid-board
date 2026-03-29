@@ -21,6 +21,25 @@ BEGIN
 END $$;
 
 -- Convert existing text columns to enums.
+UPDATE "TaskTemplate"
+SET
+  "timeBlock" = UPPER("timeBlock"),
+  "frequencyType" = UPPER("frequencyType")
+WHERE
+  "timeBlock" <> UPPER("timeBlock")
+  OR "frequencyType" <> UPPER("frequencyType");
+
+UPDATE "DailyTask"
+SET
+  "timeBlock" = UPPER("timeBlock"),
+  "status" = UPPER("status")
+WHERE
+  "timeBlock" <> UPPER("timeBlock")
+  OR "status" <> UPPER("status");
+
+ALTER TABLE "DailyTask"
+  ALTER COLUMN "status" DROP DEFAULT;
+
 ALTER TABLE "TaskTemplate"
   ALTER COLUMN "timeBlock" TYPE "TimeBlock" USING ("timeBlock"::text::"TimeBlock"),
   ALTER COLUMN "frequencyType" TYPE "FrequencyType" USING ("frequencyType"::text::"FrequencyType");

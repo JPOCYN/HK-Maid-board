@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { StatusPill } from "@/components/ui/status-pill";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TASK_STATUS, TaskStatus } from "@/lib/task-constants";
 
 type Task = {
@@ -25,16 +24,156 @@ type BoardPayload = {
   groups: Record<"MORNING" | "AFTERNOON" | "EVENING", Task[]>;
 };
 
-const blockTitle = {
-  MORNING: "Morning",
-  AFTERNOON: "Afternoon",
-  EVENING: "Evening",
+const BLOCKS = ["MORNING", "AFTERNOON", "EVENING"] as const;
+
+const blockMeta = {
+  MORNING: { label: "Morning", icon: "\u2600\uFE0F", cssIcon: "block-icon-morning" },
+  AFTERNOON: { label: "Afternoon", icon: "\u26C5", cssIcon: "block-icon-afternoon" },
+  EVENING: { label: "Evening", icon: "\uD83C\uDF19", cssIcon: "block-icon-evening" },
 };
+
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function formatDate(): string {
+  return new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function formatTime(): string {
+  return new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+const RING_RADIUS = 33;
+const RING_CIRC = 2 * Math.PI * RING_RADIUS;
+
+function ProgressRing({ completed, total }: { completed: number; total: number }) {
+  const pct = total > 0 ? completed / total : 0;
+  const offset = RING_CIRC * (1 - pct);
+
+  return (
+    <div className="progress-ring-wrap">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <defs>
+          <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#22c55e" />
+          </linearGradient>
+        </defs>
+        <circle className="progress-ring-bg" cx="40" cy="40" r={RING_RADIUS} />
+        <circle
+          className="progress-ring-fill"
+          cx="40"
+          cy="40"
+          r={RING_RADIUS}
+          strokeDasharray={RING_CIRC}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <div className="progress-ring-text">
+        <span className="progress-ring-number">
+          {completed}/{total}
+        </span>
+        <span className="progress-ring-label">done</span>
+      </div>
+    </div>
+  );
+}
+
+function TaskBadge({ status }: { status: TaskStatus }) {
+  const map: Record<TaskStatus, { label: string; cls: string }> = {
+    PENDING: { label: "To do", cls: "task-badge task-badge-pending" },
+    COMPLETED: { label: "\u2713 Done", cls: "task-badge task-badge-completed" },
+    SKIPPED: { label: "Skipped", cls: "task-badge task-badge-skipped" },
+  };
+  const entry = map[status];
+  return <span className={entry.cls}>{entry.label}</span>;
+}
+
+function TaskCard({
+  task,
+  busy,
+  onUpdate,
+}: {
+  task: Task;
+  busy: boolean;
+  onUpdate: (id: string, status: TaskStatus) => void;
+}) {
+  const isDone = task.status === TASK_STATUS.COMPLETED;
+  const isSkipped = task.status === TASK_STATUS.SKIPPED;
+  const isPending = task.status === TASK_STATUS.PENDING;
+
+  const cardClass = [
+    "task-card",
+    isDone && "task-card-done",
+    isSkipped && "task-card-skipped",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div className={cardClass}>
+      <div className="task-top-row">
+        <div>
+          <div className="task-title">{task.title}</div>
+          {task.notes ? <div className="task-notes">{task.notes}</div> : null}
+        </div>
+        <TaskBadge status={task.status} />
+      </div>
+
+      <div className="task-actions">
+        {isPending ? (
+          <>
+            <button
+              className="task-btn task-btn-complete"
+              disabled={busy}
+              onClick={() => onUpdate(task.id, TASK_STATUS.COMPLETED)}
+            >
+              <span className="task-btn-icon">{"\u2713"}</span>
+              Complete
+            </button>
+            <button
+              className="task-btn task-btn-skip"
+              disabled={busy}
+              onClick={() => onUpdate(task.id, TASK_STATUS.SKIPPED)}
+            >
+              <span className="task-btn-icon">{"\u279C"}</span>
+              Skip
+            </button>
+          </>
+        ) : (
+          <button
+            className="task-btn task-btn-undo"
+            disabled={busy}
+            onClick={() => onUpdate(task.id, TASK_STATUS.PENDING)}
+          >
+            <span className="task-btn-icon">{"\u21A9"}</span>
+            Undo
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function BoardClient() {
   const [data, setData] = useState<BoardPayload | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [clock, setClock] = useState(formatTime);
+  const [loaded, setLoaded] = useState(false);
+  const lastFetch = useRef(0);
 
   const fetchBoard = useCallback(async () => {
     try {
@@ -43,22 +182,32 @@ export function BoardClient() {
       const payload: BoardPayload = await response.json();
       setData(payload);
       setError(null);
+      lastFetch.current = Date.now();
     } catch {
       setError("Unable to sync right now. Retrying...");
+    } finally {
+      setLoaded(true);
     }
   }, []);
 
   useEffect(() => {
     void fetchBoard();
-    const timer = setInterval(() => {
-      void fetchBoard();
-    }, 10000);
-    return () => clearInterval(timer);
+    const dataTimer = setInterval(() => void fetchBoard(), 10000);
+    const clockTimer = setInterval(() => setClock(formatTime()), 1000);
+    return () => {
+      clearInterval(dataTimer);
+      clearInterval(clockTimer);
+    };
   }, [fetchBoard]);
 
   const allTasks = useMemo(() => {
     if (!data) return [];
     return [...data.groups.MORNING, ...data.groups.AFTERNOON, ...data.groups.EVENING];
+  }, [data]);
+
+  const allDone = useMemo(() => {
+    if (!data || data.progress.total === 0) return false;
+    return data.progress.pending === 0;
   }, [data]);
 
   async function updateStatus(taskId: string, status: TaskStatus) {
@@ -67,10 +216,25 @@ export function BoardClient() {
 
     const previous = data;
     const next = structuredClone(previous);
-    for (const block of ["MORNING", "AFTERNOON", "EVENING"] as const) {
+    for (const block of BLOCKS) {
       const task = next.groups[block].find((item) => item.id === taskId);
       if (task) task.status = status;
     }
+    const completed = BLOCKS.reduce(
+      (sum, b) => sum + next.groups[b].filter((t) => t.status === TASK_STATUS.COMPLETED).length,
+      0,
+    );
+    const skipped = BLOCKS.reduce(
+      (sum, b) => sum + next.groups[b].filter((t) => t.status === TASK_STATUS.SKIPPED).length,
+      0,
+    );
+    next.progress = {
+      ...next.progress,
+      completed,
+      skipped,
+      pending: next.progress.total - completed - skipped,
+      completionRate: next.progress.total > 0 ? Math.round((completed / next.progress.total) * 100) : 0,
+    };
     setData(next);
 
     try {
@@ -89,110 +253,91 @@ export function BoardClient() {
     }
   }
 
+  if (!loaded) {
+    return (
+      <main className="board">
+        <div className="board-loading">
+          <div className="board-spinner" />
+          <span>Loading tasks...</span>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "1rem",
-        background: "linear-gradient(180deg, #eef3ff 0%, #f8faff 100%)",
-      }}
-    >
-      <div className="container" style={{ width: "min(1400px, 96vw)" }}>
-        <header className="card" style={{ padding: "1rem 1.25rem", marginBottom: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "center" }}>
-            <div>
-              <h1 style={{ margin: 0, fontSize: "1.8rem" }}>Today&apos;s Tasks</h1>
-              <p style={{ margin: "0.25rem 0 0", color: "var(--muted)" }}>
-                {data?.household ?? "Household"} · live board
-              </p>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "1.8rem", fontWeight: 700 }}>
-                {data?.progress.completed ?? 0}/{data?.progress.total ?? 0}
-              </div>
-              <div style={{ color: "var(--muted)", fontSize: "0.9rem" }}>completed</div>
-            </div>
-          </div>
-          <div
-            style={{
-              height: 10,
-              marginTop: "0.8rem",
-              borderRadius: 999,
-              background: "#dbe7ff",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                width: `${data?.progress.completionRate ?? 0}%`,
-                background: "linear-gradient(90deg, #2f6fed 0%, #1a936f 100%)",
-                transition: "width 180ms ease",
-              }}
-            />
-          </div>
-          {error ? <p style={{ color: "#9b1c1c", marginBottom: 0 }}>{error}</p> : null}
-        </header>
+    <main className="board">
+      <header className="board-header">
+        <div className="board-header-left">
+          <div className="board-greeting">{getGreeting()}</div>
+          <div className="board-date">{formatDate()}</div>
+        </div>
+        <div className="board-header-right">
+          <div className="board-clock">{clock}</div>
+          <ProgressRing
+            completed={data?.progress.completed ?? 0}
+            total={data?.progress.total ?? 0}
+          />
+        </div>
+      </header>
 
-        <section style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
-          {(["MORNING", "AFTERNOON", "EVENING"] as const).map((block) => (
-            <article key={block} className="card" style={{ padding: "0.9rem" }}>
-              <h2 style={{ margin: "0 0 0.8rem", fontSize: "1.35rem" }}>{blockTitle[block]}</h2>
-              <div style={{ display: "grid", gap: "0.65rem" }}>
-                {(data?.groups[block] ?? []).map((task) => (
-                  <div key={task.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "0.75rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "0.6rem", alignItems: "start" }}>
-                      <div>
-                        <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>{task.title}</div>
-                        {task.notes ? <p style={{ margin: "0.2rem 0", color: "var(--muted)" }}>{task.notes}</p> : null}
-                      </div>
-                      <StatusPill status={task.status} />
-                    </div>
-                    <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.6rem" }}>
-                      <button
-                        className="btn"
-                        style={{
-                          background: "#def7ec",
-                          color: "#065f46",
-                          fontSize: "1rem",
-                          minHeight: 48,
-                          flex: 1,
-                        }}
-                        disabled={busyId === task.id}
-                        onClick={() => updateStatus(task.id, TASK_STATUS.COMPLETED)}
-                      >
-                        Complete
-                      </button>
-                      <button
-                        className="btn"
-                        style={{
-                          background: "#fff0db",
-                          color: "#92400e",
-                          fontSize: "1rem",
-                          minHeight: 48,
-                          flex: 1,
-                        }}
-                        disabled={busyId === task.id}
-                        onClick={() => updateStatus(task.id, TASK_STATUS.SKIPPED)}
-                      >
-                        Skip
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {(data?.groups[block]?.length ?? 0) === 0 ? (
-                  <div style={{ color: "var(--muted)", fontSize: "0.95rem" }}>No tasks in this block.</div>
-                ) : null}
-              </div>
-            </article>
-          ))}
-        </section>
+      {error ? <div className="board-error">{error}</div> : null}
 
-        {allTasks.length === 0 ? (
-          <div className="card" style={{ marginTop: "1rem", padding: "1rem", textAlign: "center", color: "var(--muted)" }}>
-            No tasks for today.
+      <div className="board-content">
+        {allDone ? (
+          <div className="board-all-done">
+            <div className="board-all-done-icon">{"\uD83C\uDF89"}</div>
+            <div className="board-all-done-title">All tasks completed!</div>
+            <div className="board-all-done-sub">Great job today. Enjoy the rest of the day.</div>
           </div>
         ) : null}
+
+        {allTasks.length === 0 && !allDone ? (
+          <div className="board-empty">
+            <div className="board-empty-icon">{"\uD83D\uDCCB"}</div>
+            <div className="board-empty-text">No tasks scheduled for today.</div>
+          </div>
+        ) : null}
+
+        {allTasks.length > 0 ? (
+          <div className="board-columns">
+            {BLOCKS.map((block) => {
+              const tasks = data?.groups[block] ?? [];
+              const meta = blockMeta[block];
+              const done = tasks.filter((t) => t.status !== TASK_STATUS.PENDING).length;
+
+              return (
+                <section key={block} className="block-column">
+                  <div className="block-header">
+                    <div className={`block-icon ${meta.cssIcon}`}>{meta.icon}</div>
+                    <div className="block-title">{meta.label}</div>
+                    <div className="block-count">
+                      {done}/{tasks.length}
+                    </div>
+                  </div>
+
+                  {tasks.length > 0 ? (
+                    tasks.map((task, i) => (
+                      <div key={task.id} style={{ animationDelay: `${i * 60}ms` }}>
+                        <TaskCard
+                          task={task}
+                          busy={busyId === task.id}
+                          onUpdate={updateStatus}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="block-empty">Nothing here</div>
+                  )}
+                </section>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="board-sync">
+        <span className={`sync-dot ${error ? "sync-dot-error" : ""}`} />
+        {error ? "Offline" : "Live"}
       </div>
     </main>
   );

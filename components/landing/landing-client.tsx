@@ -125,9 +125,6 @@ export function LandingClient() {
           <Link href="/admin/signup" className="landing-btn-primary">
             {l.getStarted} {"\u2192"}
           </Link>
-          <Link href="/enter" className="landing-btn-secondary">
-            {l.enterCode}
-          </Link>
         </div>
       </section>
 

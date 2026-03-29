@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "@/lib/i18n/context";
@@ -167,6 +168,32 @@ export function HomeCodeEntry() {
           </button>
         ) : null}
       </form>
+
+      <div
+        style={{
+          marginTop: "1.5rem",
+          width: "min(460px, 100%)",
+          textAlign: "center",
+          padding: "1.5rem 1.5rem",
+          borderRadius: 16,
+          background: "rgba(120,120,128,0.04)",
+          border: "1px solid rgba(120,120,128,0.1)",
+        }}
+      >
+        <p style={{ margin: "0 0 0.3rem", fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)" }}>
+          {e.newUserTitle}
+        </p>
+        <p style={{ margin: "0 0 0.85rem", fontSize: "0.88rem", color: "var(--muted)", lineHeight: 1.5 }}>
+          {e.newUserDesc}
+        </p>
+        <Link
+          href="/admin/signup"
+          className="btn btn-primary"
+          style={{ display: "inline-block", padding: "0.6rem 1.8rem", fontSize: "0.95rem", borderRadius: 12, textDecoration: "none" }}
+        >
+          {e.newUserSignup}
+        </Link>
+      </div>
     </main>
   );
 }

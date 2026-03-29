@@ -105,13 +105,8 @@ export function TaskManager() {
   const [loading, setLoading] = useState(false);
   const [presetLoadingKey, setPresetLoadingKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const groupedPresets = useMemo(() => {
-    return categoryOrder.map((categoryKey) => ({
-      categoryKey,
-      items: presetCatalog.filter((preset) => preset.categoryKey === categoryKey),
-    }));
-  }, []);
+  const [presetOpen, setPresetOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<PresetTask["categoryKey"]>(categoryOrder[0]);
 
   async function loadTasks() {
     const response = await fetch("/api/admin/tasks", { cache: "no-store" });
@@ -255,44 +250,112 @@ export function TaskManager() {
 
   return (
     <div style={{ display: "grid", gap: "0.85rem" }}>
-      {/* Quick Add Presets */}
+      {/* Quick Add Presets — collapsible compact chips */}
       <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
-        <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.15rem" }}>{a.quickAddTitle}</div>
-        <p style={{ color: "var(--muted)", margin: "0 0 1rem", fontSize: "0.88rem" }}>{a.quickAddHint}</p>
-        <div style={{ display: "grid", gap: "0.85rem" }}>
-          {groupedPresets.map((group) => (
-            <div key={group.categoryKey}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.4rem", padding: "0 0.1rem" }}>
-                {a[group.categoryKey]}
-              </div>
-              <div className="ios-grouped">
-                {group.items.map((preset, idx) => (
-                  <div
-                    key={preset.key}
-                    className="ios-row"
-                    style={{ borderTop: idx > 0 ? "1px solid var(--separator)" : "none" }}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: "0.92rem" }}>{a[preset.key]}</div>
-                      <div style={{ color: "var(--muted)", fontSize: "0.78rem" }}>
-                        {timeBlockLabel(preset.timeBlock)} · {preset.frequencyType === FREQUENCY_TYPE.DAILY ? a.daily : a.selectedWeekdays}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      style={{ padding: "0.35rem 0.7rem", fontSize: "0.82rem", flexShrink: 0 }}
-                      onClick={() => addPresetTask(preset)}
-                      disabled={presetLoadingKey === preset.key}
-                    >
-                      {presetLoadingKey === preset.key ? a.saving : a.addNow}
-                    </button>
-                  </div>
-                ))}
-              </div>
+        <button
+          type="button"
+          onClick={() => setPresetOpen((v) => !v)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            fontFamily: "inherit",
+          }}
+        >
+          <div>
+            <div style={{ fontWeight: 700, fontSize: "1.05rem", color: "var(--text)", textAlign: "left" }}>{a.quickAddTitle}</div>
+            <div style={{ color: "var(--muted)", fontSize: "0.85rem", textAlign: "left" }}>{a.quickAddHint}</div>
+          </div>
+          <span
+            style={{
+              fontSize: "1.1rem",
+              color: "var(--muted)",
+              transition: "transform 200ms ease",
+              transform: presetOpen ? "rotate(180deg)" : "rotate(0deg)",
+              flexShrink: 0,
+              marginLeft: "0.5rem",
+            }}
+          >
+            {"\u25BE"}
+          </span>
+        </button>
+
+        {presetOpen ? (
+          <div style={{ marginTop: "0.85rem" }}>
+            {/* Category tabs */}
+            <div
+              style={{
+                display: "flex",
+                gap: "0.3rem",
+                overflowX: "auto",
+                paddingBottom: "0.6rem",
+                WebkitOverflowScrolling: "touch",
+                scrollbarWidth: "none",
+              }}
+            >
+              {categoryOrder.map((catKey) => (
+                <button
+                  key={catKey}
+                  type="button"
+                  onClick={() => setActiveCategory(catKey)}
+                  style={{
+                    padding: "0.38rem 0.75rem",
+                    borderRadius: 980,
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    fontFamily: "inherit",
+                    whiteSpace: "nowrap",
+                    background: activeCategory === catKey ? "#007aff" : "rgba(120,120,128,0.08)",
+                    color: activeCategory === catKey ? "#fff" : "var(--secondary)",
+                    transition: "all 180ms ease",
+                  }}
+                >
+                  {a[catKey]}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {/* Preset chips for active category */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+              {presetCatalog
+                .filter((p) => p.categoryKey === activeCategory)
+                .map((preset) => (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => addPresetTask(preset)}
+                    disabled={presetLoadingKey === preset.key}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.3rem",
+                      padding: "0.4rem 0.75rem",
+                      borderRadius: 980,
+                      border: "none",
+                      cursor: presetLoadingKey === preset.key ? "wait" : "pointer",
+                      fontSize: "0.85rem",
+                      fontWeight: 500,
+                      fontFamily: "inherit",
+                      background: "rgba(0,122,255,0.08)",
+                      color: "#007aff",
+                      transition: "all 180ms ease",
+                      opacity: presetLoadingKey === preset.key ? 0.5 : 1,
+                    }}
+                  >
+                    <span style={{ fontSize: "0.9rem" }}>+</span>
+                    {a[preset.key]}
+                  </button>
+                ))}
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {/* Create / Edit Task */}

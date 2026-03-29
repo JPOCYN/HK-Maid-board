@@ -35,8 +35,9 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   const a = t.admin;
   const [data, setData] = useState<Response | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedEntry, setCopiedEntry] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [resettingUrl, setResettingUrl] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [cachedHomeCode, setCachedHomeCode] = useState<string | null>(null);
@@ -72,22 +73,10 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
     return () => clearInterval(timer);
   }, [load]);
 
-  function copyBoardUrl() {
-    const token = data?.boardToken ?? boardToken;
-    if (!token) return;
-    const url = `${window.location.origin}/board/${token}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
-
-  function copyHomeCode() {
-    const code = data?.homeCode ?? cachedHomeCode;
-    if (!code) return;
-    navigator.clipboard.writeText(code).then(() => {
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
+  function copyText(text: string, setter: (v: boolean) => void) {
+    navigator.clipboard.writeText(text).then(() => {
+      setter(true);
+      setTimeout(() => setter(false), 2000);
     });
   }
 
@@ -127,7 +116,11 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   }
 
   const displayHomeCode = data?.homeCode ?? cachedHomeCode;
+  const currentToken = data?.boardToken ?? boardToken;
   const pct = data?.progress.completionRate ?? 0;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const entryUrl = `${origin}/go`;
+  const boardUrl = currentToken ? `${origin}/board/${currentToken}` : "";
 
   return (
     <div style={{ display: "grid", gap: "0.85rem" }}>
@@ -162,59 +155,127 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
         </div>
       </section>
 
-      {/* Home Code */}
-      {displayHomeCode ? (
+      {/* Combined: Share with Helper */}
+      {(displayHomeCode || currentToken) ? (
         <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
-          <div style={{ fontWeight: 700, marginBottom: "0.15rem" }}>{a.yourHomeCode}</div>
-          <p style={{ color: "var(--muted)", margin: "0 0 0.8rem", fontSize: "0.88rem" }}>{a.homeCodeHint}</p>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <code
+          <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.15rem" }}>{a.shareTitle}</div>
+          <p style={{ color: "var(--muted)", margin: "0 0 1rem", fontSize: "0.88rem" }}>{a.shareHint}</p>
+
+          {/* Option 1: Entry URL + Home Code */}
+          {displayHomeCode ? (
+            <div
               style={{
-                background: "rgba(0,122,255,0.06)",
-                padding: "0.55rem 1rem",
-                borderRadius: 12,
-                fontSize: "1.25rem",
-                fontWeight: 800,
-                letterSpacing: "0.12em",
-                color: "#007aff",
+                background: "rgba(0,122,255,0.04)",
+                borderRadius: 16,
+                padding: "1rem 1.1rem",
+                marginBottom: "0.75rem",
+                border: "1px solid rgba(0,122,255,0.1)",
               }}
             >
-              {displayHomeCode}
-            </code>
-            <button type="button" className="btn btn-secondary" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={copyHomeCode}>
-              {copiedCode ? a.copied : a.copyUrl}
-            </button>
-            <button type="button" className="btn btn-danger" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={regenerateHomeCode} disabled={regenerating}>
-              {regenerating ? a.regenerating : a.regenerateCode}
-            </button>
-          </div>
-          <div
-            style={{
-              marginTop: "0.75rem",
-              padding: "0.65rem 0.85rem",
-              background: "rgba(120,120,128,0.04)",
-              borderRadius: 12,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "0.5rem",
-              flexWrap: "wrap",
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "#1c1c1e" }}>{a.entryPageLink}</div>
-              <div style={{ fontSize: "0.8rem", color: "#8e8e93" }}>{a.entryPageHint}</div>
+              <div style={{ fontWeight: 700, fontSize: "0.92rem", color: "#007aff", marginBottom: "0.35rem" }}>
+                {a.optionCodeTitle}
+              </div>
+              <p style={{ color: "#636366", fontSize: "0.85rem", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
+                {a.optionCodeDesc}
+              </p>
+
+              {/* Entry URL row */}
+              <div style={{ marginBottom: "0.6rem" }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#8e8e93", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.25rem" }}>
+                  {a.optionCodeEntry}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
+                  <code
+                    style={{
+                      background: "#fff",
+                      padding: "0.45rem 0.8rem",
+                      borderRadius: 10,
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "#007aff",
+                      letterSpacing: "0.01em",
+                      border: "1px solid rgba(0,122,255,0.12)",
+                    }}
+                  >
+                    {entryUrl || "/go"}
+                  </code>
+                  <button type="button" className="btn btn-secondary" style={{ fontSize: "0.82rem", padding: "0.35rem 0.7rem" }} onClick={() => copyText(entryUrl || "/go", setCopiedEntry)}>
+                    {copiedEntry ? a.copied : a.copyUrl}
+                  </button>
+                </div>
+              </div>
+
+              {/* Home Code row */}
+              <div>
+                <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#8e8e93", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.25rem" }}>
+                  {a.optionCodeLabel}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
+                  <code
+                    style={{
+                      background: "#fff",
+                      padding: "0.5rem 1rem",
+                      borderRadius: 12,
+                      fontSize: "1.35rem",
+                      fontWeight: 800,
+                      letterSpacing: "0.12em",
+                      color: "#007aff",
+                      border: "1px solid rgba(0,122,255,0.12)",
+                    }}
+                  >
+                    {displayHomeCode}
+                  </code>
+                  <button type="button" className="btn btn-secondary" style={{ fontSize: "0.82rem", padding: "0.35rem 0.7rem" }} onClick={() => copyText(displayHomeCode!, setCopiedCode)}>
+                    {copiedCode ? a.copied : a.copyUrl}
+                  </button>
+                  <button type="button" className="btn btn-danger" style={{ fontSize: "0.82rem", padding: "0.35rem 0.7rem" }} onClick={regenerateHomeCode} disabled={regenerating}>
+                    {regenerating ? a.regenerating : a.regenerateCode}
+                  </button>
+                </div>
+              </div>
             </div>
-            <a
-              href="/enter"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary"
-              style={{ fontSize: "0.82rem", padding: "0.35rem 0.75rem", textDecoration: "none" }}
+          ) : null}
+
+          {/* Option 2: Direct Board Link */}
+          {currentToken ? (
+            <div
+              style={{
+                background: "rgba(120,120,128,0.04)",
+                borderRadius: 16,
+                padding: "1rem 1.1rem",
+              }}
             >
-              {typeof window !== "undefined" ? `${window.location.origin}/enter` : "/enter"} ↗
-            </a>
-          </div>
+              <div style={{ fontWeight: 700, fontSize: "0.92rem", color: "#636366", marginBottom: "0.35rem" }}>
+                {a.optionLinkTitle}
+              </div>
+              <p style={{ color: "#8e8e93", fontSize: "0.85rem", margin: "0 0 0.65rem", lineHeight: 1.5 }}>
+                {a.optionLinkDesc}
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
+                <code
+                  style={{
+                    background: "rgba(120,120,128,0.06)",
+                    padding: "0.4rem 0.7rem",
+                    borderRadius: 10,
+                    fontSize: "0.8rem",
+                    wordBreak: "break-all",
+                    color: "#636366",
+                  }}
+                >
+                  {boardUrl || `/board/${currentToken}`}
+                </code>
+                <button type="button" className="btn btn-secondary" style={{ fontSize: "0.82rem", padding: "0.35rem 0.7rem" }} onClick={() => copyText(boardUrl, setCopiedLink)}>
+                  {copiedLink ? a.copied : a.copyUrl}
+                </button>
+                <button type="button" className="btn btn-danger" style={{ fontSize: "0.82rem", padding: "0.35rem 0.7rem" }} onClick={resetBoardUrl} disabled={resettingUrl}>
+                  {resettingUrl ? a.saving : a.resetUrl}
+                </button>
+              </div>
+              <p style={{ color: "#aeaeb2", fontSize: "0.78rem", margin: "0.5rem 0 0", lineHeight: 1.4 }}>
+                {a.optionLinkWarn}
+              </p>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -272,38 +333,6 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
         </div>
         {error ? <p style={{ color: "var(--danger)", marginBottom: 0, marginTop: "0.6rem", fontSize: "0.88rem" }}>{error}</p> : null}
       </section>
-
-      {/* Board URL */}
-      {(data?.boardToken ?? boardToken) ? (
-        <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
-          <div style={{ fontWeight: 700, marginBottom: "0.15rem" }}>{a.boardUrl}</div>
-          <p style={{ color: "var(--muted)", margin: "0 0 0.7rem", fontSize: "0.88rem" }}>
-            {a.boardUrlHint} {a.boardUrlSimpleHint}
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <code
-              style={{
-                background: "rgba(120,120,128,0.06)",
-                padding: "0.4rem 0.7rem",
-                borderRadius: 10,
-                fontSize: "0.82rem",
-                wordBreak: "break-all",
-                color: "#636366",
-              }}
-            >
-              {typeof window !== "undefined"
-                ? `${window.location.origin}/board/${data?.boardToken ?? boardToken}`
-                : `/board/${data?.boardToken ?? boardToken}`}
-            </code>
-            <button type="button" className="btn btn-secondary" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={copyBoardUrl}>
-              {copied ? a.copied : a.copyUrl}
-            </button>
-            <button type="button" className="btn btn-danger" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={resetBoardUrl} disabled={resettingUrl}>
-              {resettingUrl ? a.saving : a.resetUrl}
-            </button>
-          </div>
-        </section>
-      ) : null}
 
       {/* Task List */}
       <section className="card" style={{ padding: "1.2rem 1.4rem" }}>

@@ -209,7 +209,7 @@ export function BoardClient({ slug }: { slug: string }) {
     const confirmed = window.confirm(b.exitConfirm);
     if (!confirmed) return;
     localStorage.removeItem("maidboard_home_code");
-    window.location.href = "/enter";
+    window.location.href = "/go";
   }
 
   if (!loaded) return <main className="board"><div className="board-loading"><div className="board-spinner" /><span>{b.loading}</span></div></main>;

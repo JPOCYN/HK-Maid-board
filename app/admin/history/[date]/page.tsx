@@ -9,14 +9,14 @@ import { LanguageProvider } from "@/lib/i18n/context";
 type Params = { params: Promise<{ date: string }> };
 
 export default async function AdminHistoryDetailPage({ params }: Params) {
-  await requireAdminPageSession();
+  const session = await requireAdminPageSession();
   const { date } = await params;
   if (!parseDayKey(date)) notFound();
 
   return (
     <LanguageProvider>
       <main className="container" style={{ padding: "1rem 0 2rem" }}>
-        <AdminNav />
+        <AdminNav boardToken={session.boardToken} />
         <div style={{ marginBottom: "0.8rem" }}>
           <HistoryBackLink />
         </div>

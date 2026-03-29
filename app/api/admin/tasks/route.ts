@@ -62,3 +62,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Could not create task. ${message}` }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const auth = await requireAdminSession();
+  if (auth.error || !auth.session) return auth.error;
+
+  try {
+    const body = await request.json();
+    const ids = Array.isArray(body?.ids) ? body.ids.filter((id: unknown) => typeof id === "string") : [];
+    if (ids.length === 0) {
+      return NextResponse.json({ error: "No task ids provided." }, { status: 400 });
+    }
+
+    const deleted = await prisma.taskTemplate.deleteMany({
+      where: {
+        householdId: auth.session.householdId,
+        id: { in: ids },
+      },
+    });
+
+    return NextResponse.json({ ok: true, deleted: deleted.count });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unexpected server error while deleting tasks.";
+    return NextResponse.json({ error: `Could not delete selected tasks. ${message}` }, { status: 500 });
+  }
+}

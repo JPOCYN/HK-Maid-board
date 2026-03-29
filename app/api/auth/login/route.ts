@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     await createSession({
       userId: user.userId,
       householdId: user.householdId,
-      householdSlug: user.householdSlug,
+      boardToken: user.boardToken,
       email: user.email,
     });
 

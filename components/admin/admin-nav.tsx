@@ -6,7 +6,7 @@ import { LogoutButton } from "@/components/admin/logout-button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "@/lib/i18n/context";
 
-export function AdminNav() {
+export function AdminNav({ boardToken }: { boardToken?: string }) {
   const pathname = usePathname();
   const { t } = useTranslation();
   const a = t.admin;
@@ -39,7 +39,11 @@ export function AdminNav() {
               </Link>
             );
           })}
-          <Link href="/board" className="btn" style={{ padding: "0.45rem 0.8rem", background: "#ecfdf5", color: "#166534" }}>
+          <Link
+            href={boardToken ? `/board/${boardToken}` : "/"}
+            className="btn"
+            style={{ padding: "0.45rem 0.8rem", background: "#ecfdf5", color: "#166534" }}
+          >
             {a.openBoard}
           </Link>
         </div>

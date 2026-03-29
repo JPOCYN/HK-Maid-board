@@ -1,5 +1,6 @@
 import { PrismaClient, FrequencyType, Prisma, TimeBlock } from "@prisma/client";
 import { hash } from "bcryptjs";
+import { generateBoardToken } from "@/lib/board-token";
 
 const prisma = new PrismaClient();
 
@@ -36,7 +37,7 @@ async function main() {
   const household = await prisma.household.upsert({
     where: { slug: householdSlug },
     update: { name: householdName },
-    create: { name: householdName, slug: householdSlug },
+    create: { name: householdName, slug: householdSlug, boardToken: generateBoardToken() },
   });
 
   const passwordHash = await hash(password, 12);

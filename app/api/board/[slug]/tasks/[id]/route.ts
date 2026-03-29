@@ -8,7 +8,7 @@ type Params = { params: Promise<{ slug: string; id: string }> };
 
 export async function PATCH(request: Request, { params }: Params) {
   try {
-    const { slug, id } = await params;
+    const { slug: token, id } = await params;
     const body = await request.json();
     const parsed = updateTaskStatusSchema.safeParse(body);
     if (!parsed.success) {
@@ -16,7 +16,7 @@ export async function PATCH(request: Request, { params }: Params) {
     }
 
     const household = await prisma.household.findUnique({
-      where: { slug },
+      where: { boardToken: token },
       select: { id: true, isActive: true },
     });
 

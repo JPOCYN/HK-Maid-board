@@ -9,8 +9,8 @@ export default async function AdminDashboardPage() {
   return (
     <LanguageProvider>
       <main className="container" style={{ padding: "1rem 0 2rem" }}>
-        <AdminNav />
-        <TodayDashboard boardSlug={session.householdSlug} />
+        <AdminNav boardToken={session.boardToken} />
+        <TodayDashboard boardToken={session.boardToken} />
       </main>
     </LanguageProvider>
   );

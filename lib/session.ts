@@ -8,7 +8,7 @@ const encoder = new TextEncoder();
 export type SessionPayload = {
   userId: string;
   householdId: string;
-  householdSlug: string;
+  boardToken: string;
   email: string;
 };
 
@@ -59,7 +59,7 @@ export async function readSession(): Promise<SessionPayload | null> {
     return {
       userId: payload.userId,
       householdId: payload.householdId,
-      householdSlug: (payload.householdSlug as string) ?? "",
+      boardToken: (payload.boardToken as string) ?? "",
       email: payload.email,
     };
   } catch {

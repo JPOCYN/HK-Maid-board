@@ -26,12 +26,13 @@ type Response = {
   tasks: Task[];
 };
 
-export function TodayDashboard({ boardSlug }: { boardSlug?: string }) {
+export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   const { t } = useTranslation();
   const a = t.admin;
   const [data, setData] = useState<Response | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -52,25 +53,41 @@ export function TodayDashboard({ boardSlug }: { boardSlug?: string }) {
   }, [load]);
 
   function copyBoardUrl() {
-    const url = `${window.location.origin}/board/${boardSlug}`;
+    const url = `${window.location.origin}/board/${boardToken}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
   }
 
+  async function resetToday() {
+    setResetting(true);
+    try {
+      const response = await fetch("/api/admin/today/reset", { method: "POST" });
+      if (!response.ok) throw new Error("Failed");
+      await load();
+    } catch {
+      setError("Could not reset today tasks.");
+    } finally {
+      setResetting(false);
+    }
+  }
+
   return (
     <div style={{ display: "grid", gap: "1rem" }}>
-      {boardSlug ? (
+      {boardToken ? (
         <section className="card" style={{ padding: "1rem" }}>
           <h3 style={{ marginTop: 0 }}>{a.boardUrl}</h3>
           <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>{a.boardUrlHint}</p>
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
             <code style={{ background: "#f1f5f9", padding: "0.4rem 0.7rem", borderRadius: 8, fontSize: "0.9rem", wordBreak: "break-all" }}>
-              {typeof window !== "undefined" ? `${window.location.origin}/board/${boardSlug}` : `/board/${boardSlug}`}
+              {typeof window !== "undefined" ? `${window.location.origin}/board/${boardToken}` : `/board/${boardToken}`}
             </code>
             <button type="button" className="btn btn-secondary" onClick={copyBoardUrl}>
               {copied ? a.copied : a.copyUrl}
+            </button>
+            <button type="button" className="btn btn-danger" onClick={resetToday} disabled={resetting}>
+              {resetting ? a.saving : a.resetToday}
             </button>
           </div>
         </section>

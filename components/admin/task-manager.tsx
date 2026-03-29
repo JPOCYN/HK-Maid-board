@@ -54,6 +54,7 @@ export function TaskManager() {
   const [tasks, setTasks] = useState<Template[]>([]);
   const [form, setForm] = useState<FormState>(initialForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [presetLoadingKey, setPresetLoadingKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +73,7 @@ export function TaskManager() {
     if (!response.ok) throw new Error("Failed loading tasks");
     const payload: Template[] = await response.json();
     setTasks(payload);
+    setSelectedIds((current) => current.filter((id) => payload.some((task) => task.id === id)));
   }
 
   useEffect(() => {
@@ -170,6 +172,26 @@ export function TaskManager() {
       await loadTasks();
     } else {
       setError("Could not delete task.");
+    }
+  }
+
+  async function deleteSelected() {
+    if (selectedIds.length === 0) return;
+    const confirmed = window.confirm(a.deleteSelectedConfirm);
+    if (!confirmed) return;
+
+    const response = await fetch("/api/admin/tasks", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: selectedIds }),
+    });
+
+    if (response.ok) {
+      setSelectedIds([]);
+      await loadTasks();
+    } else {
+      const data = await response.json().catch(() => ({}));
+      setError(data.error ?? "Could not delete selected tasks.");
     }
   }
 
@@ -331,11 +353,60 @@ export function TaskManager() {
 
       <section className="card" style={{ padding: "1rem" }}>
         <h2 style={{ marginTop: 0 }}>{a.taskTemplates}</h2>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.75rem", alignItems: "center" }}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setSelectedIds(tasks.map((task) => task.id))}
+            disabled={tasks.length === 0}
+          >
+            {a.selectAll}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            style={{ background: "#f1f5f9", color: "#475569" }}
+            onClick={() => setSelectedIds([])}
+            disabled={selectedIds.length === 0}
+          >
+            {a.clearSelection}
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={deleteSelected}
+            disabled={selectedIds.length === 0}
+          >
+            {a.deleteSelected}
+          </button>
+          <span style={{ color: "var(--muted)", fontSize: "0.9rem" }}>
+            {selectedIds.length} {a.selectedCount}
+          </span>
+        </div>
         <div style={{ display: "grid", gap: "0.65rem" }}>
           {tasks.map((task) => (
-            <article key={task.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "0.75rem" }}>
+            <article
+              key={task.id}
+              style={{
+                border: selectedIds.includes(task.id) ? "1px solid #3b82f6" : "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "0.75rem",
+                background: selectedIds.includes(task.id) ? "#f8fbff" : "#fff",
+              }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", gap: "0.8rem", alignItems: "start" }}>
                 <div>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.25rem" }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(task.id)}
+                      onChange={(event) => {
+                        setSelectedIds((current) =>
+                          event.target.checked ? [...current, task.id] : current.filter((id) => id !== task.id),
+                        );
+                      }}
+                    />
+                  </label>
                   <div style={{ fontWeight: 600 }}>{task.title}</div>
                   <div style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
                     {task.timeBlock.toLowerCase()} · {task.frequencyType === FREQUENCY_TYPE.DAILY ? a.daily : a.selectedWeekdays}

@@ -7,9 +7,9 @@ type Params = { params: Promise<{ slug: string }> };
 
 export async function GET(_request: Request, { params }: Params) {
   try {
-    const { slug } = await params;
+    const { slug: token } = await params;
     const household = await prisma.household.findUnique({
-      where: { slug },
+      where: { boardToken: token },
       select: { id: true, name: true, isActive: true },
     });
 

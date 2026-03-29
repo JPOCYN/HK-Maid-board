@@ -131,6 +131,33 @@ export function LandingClient() {
         </div>
       </section>
 
+      {/* "Use your idle device" section */}
+      <section className="landing-devices">
+        <h2>{l.deviceTitle}</h2>
+        <p className="landing-devices-sub">{l.deviceSub}</p>
+        <div className="landing-devices-grid">
+          <div className="landing-device-card">
+            <div className="landing-device-icon">{"\uD83D\uDCF1"}</div>
+            <div className="landing-device-emoji-row">
+              <span className="landing-device-emoji-item">{"\uD83D\uDCBB"}</span>
+              <span className="landing-device-emoji-item">{"\uD83E\uDDF9"}</span>
+            </div>
+            <h3>{l.devicePad}</h3>
+            <p>{l.devicePadDesc}</p>
+          </div>
+          <div className="landing-device-card">
+            <div className="landing-device-icon">{"\uD83D\uDCF2"}</div>
+            <h3>{l.devicePhone}</h3>
+            <p>{l.devicePhoneDesc}</p>
+          </div>
+          <div className="landing-device-card">
+            <div className="landing-device-icon">{"\u2705"}</div>
+            <h3>{l.deviceYou}</h3>
+            <p>{l.deviceYouDesc}</p>
+          </div>
+        </div>
+      </section>
+
       {/* Board showcase mockup */}
       <section className="landing-showcase">
         <h2>{l.showcaseTitle}</h2>

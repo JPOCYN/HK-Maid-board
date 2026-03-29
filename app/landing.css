@@ -118,6 +118,95 @@
   transform: scale(0.96);
 }
 
+/* ── Devices section ── */
+
+.landing-devices {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+  text-align: center;
+}
+
+.landing-devices h2 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+  color: #1c1c1e;
+  letter-spacing: -0.02em;
+}
+
+.landing-devices-sub {
+  font-size: 1.05rem;
+  color: #636366;
+  margin: 0 0 2rem;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.landing-devices-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .landing-devices-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+}
+
+.landing-device-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  padding: 1.6rem 1.4rem 1.4rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 300ms ease;
+}
+
+.landing-device-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.landing-device-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.6rem;
+  line-height: 1;
+}
+
+.landing-device-emoji-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+
+.landing-device-emoji-item {
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+.landing-device-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  color: #1c1c1e;
+}
+
+.landing-device-card p {
+  font-size: 0.92rem;
+  color: #636366;
+  margin: 0;
+  line-height: 1.55;
+}
+
 /* ── Board showcase ── */
 
 .landing-showcase {

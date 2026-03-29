@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { taskTemplateSchema } from "@/lib/schemas";
+import { toDayStart } from "@/lib/date";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -23,6 +24,10 @@ export async function PATCH(request: Request, { params }: Params) {
       payload.frequencyType === FrequencyType.WEEKDAYS
         ? (payload.weekdays?.length ? payload.weekdays : [1, 2, 3, 4, 5])
         : Prisma.DbNull;
+    const oneTimeDate =
+      payload.frequencyType === FrequencyType.ONCE && payload.oneTimeDate
+        ? toDayStart(new Date(payload.oneTimeDate))
+        : null;
 
     const task = await prisma.taskTemplate.updateMany({
       where: { id, householdId: auth.session.householdId },
@@ -32,7 +37,7 @@ export async function PATCH(request: Request, { params }: Params) {
         timeBlock: payload.timeBlock,
         frequencyType: payload.frequencyType,
         weekdays,
-        isActive: payload.isActive ?? true,
+        oneTimeDate,
       },
     });
 

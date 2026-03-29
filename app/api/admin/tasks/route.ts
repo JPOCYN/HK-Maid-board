@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { taskTemplateSchema } from "@/lib/schemas";
+import { toDayStart } from "@/lib/date";
 
 export async function GET() {
   const auth = await requireAdminSession();
@@ -10,13 +11,14 @@ export async function GET() {
 
   const tasks = await prisma.taskTemplate.findMany({
     where: { householdId: auth.session.householdId },
-    orderBy: [{ isActive: "desc" }, { timeBlock: "asc" }, { createdAt: "desc" }],
+    orderBy: [{ timeBlock: "asc" }, { createdAt: "desc" }],
   });
 
   return NextResponse.json(
     tasks.map((task) => ({
       ...task,
       weekdays: task.frequencyType === FrequencyType.WEEKDAYS ? task.weekdays : null,
+      oneTimeDate: task.oneTimeDate ? task.oneTimeDate.toISOString().slice(0, 10) : null,
     })),
     { headers: { "Cache-Control": "no-store" } },
   );
@@ -42,6 +44,10 @@ export async function POST(request: Request) {
       payload.frequencyType === FrequencyType.WEEKDAYS
         ? (payload.weekdays?.length ? payload.weekdays : [1, 2, 3, 4, 5])
         : Prisma.DbNull;
+    const oneTimeDate =
+      payload.frequencyType === FrequencyType.ONCE && payload.oneTimeDate
+        ? toDayStart(new Date(payload.oneTimeDate))
+        : null;
 
     const task = await prisma.taskTemplate.create({
       data: {
@@ -51,7 +57,7 @@ export async function POST(request: Request) {
         timeBlock: payload.timeBlock,
         frequencyType: payload.frequencyType,
         weekdays,
-        isActive: payload.isActive ?? true,
+        oneTimeDate,
       },
     });
 

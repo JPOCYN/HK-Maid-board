@@ -17,6 +17,7 @@ enum TimeBlock {
 enum FrequencyType {
   DAILY
   WEEKDAYS
+  ONCE
 }
 
 enum TaskStatus {
@@ -59,6 +60,7 @@ model TaskTemplate {
   timeBlock      TimeBlock
   frequencyType  FrequencyType
   weekdays       Json?
+  oneTimeDate    DateTime?
   isActive       Boolean       @default(true)
   household      Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
   dailyTasks     DailyTask[]

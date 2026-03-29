@@ -11,7 +11,7 @@ type Template = {
   timeBlock: TimeBlock;
   frequencyType: FrequencyType;
   weekdays: number[] | null;
-  isActive: boolean;
+  oneTimeDate: string | null;
 };
 
 type FormState = {
@@ -20,7 +20,7 @@ type FormState = {
   timeBlock: TimeBlock;
   frequencyType: FrequencyType;
   weekdays: number[];
-  isActive: boolean;
+  oneTimeDate: string;
 };
 
 type PresetTask = {
@@ -61,7 +61,7 @@ const initialForm: FormState = {
   timeBlock: TIME_BLOCK.MORNING,
   frequencyType: FREQUENCY_TYPE.DAILY,
   weekdays: [1, 2, 3, 4, 5],
-  isActive: true,
+  oneTimeDate: "",
 };
 
 const presetCatalog: PresetTask[] = [
@@ -140,7 +140,7 @@ export function TaskManager() {
       timeBlock: task.timeBlock,
       frequencyType: task.frequencyType,
       weekdays: task.weekdays ?? [1, 2, 3, 4, 5],
-      isActive: task.isActive,
+      oneTimeDate: task.oneTimeDate ?? "",
     });
   }
 
@@ -156,7 +156,7 @@ export function TaskManager() {
         timeBlock: form.timeBlock,
         frequencyType: form.frequencyType,
         weekdays: form.frequencyType === FREQUENCY_TYPE.WEEKDAYS ? form.weekdays : [],
-        isActive: form.isActive,
+        oneTimeDate: form.frequencyType === FREQUENCY_TYPE.ONCE ? form.oneTimeDate || null : null,
       };
 
       const response = await fetch(editingId ? `/api/admin/tasks/${editingId}` : "/api/admin/tasks", {
@@ -189,7 +189,7 @@ export function TaskManager() {
         timeBlock: preset.timeBlock,
         frequencyType: preset.frequencyType,
         weekdays: preset.frequencyType === FREQUENCY_TYPE.WEEKDAYS ? (preset.weekdays ?? [1, 2, 3, 4, 5]) : [],
-        isActive: true,
+        oneTimeDate: null,
       };
       const response = await fetch("/api/admin/tasks", {
         method: "POST",
@@ -368,18 +368,10 @@ export function TaskManager() {
               >
                 <option value={FREQUENCY_TYPE.DAILY}>{a.daily}</option>
                 <option value={FREQUENCY_TYPE.WEEKDAYS}>{a.specificWeekdays}</option>
+                <option value={FREQUENCY_TYPE.ONCE}>{a.oneTime}</option>
               </select>
             </div>
-            <div style={{ display: "flex", alignItems: "center", marginTop: "1.2rem" }}>
-              <label style={{ display: "flex", gap: "0.45rem", alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  checked={form.isActive}
-                  onChange={(event) => setForm((cur) => ({ ...cur, isActive: event.target.checked }))}
-                />
-                {a.activeTemplate}
-              </label>
-            </div>
+            <div />
           </div>
 
           {form.frequencyType === FREQUENCY_TYPE.WEEKDAYS ? (
@@ -402,6 +394,22 @@ export function TaskManager() {
                   </button>
                 ))}
               </div>
+            </div>
+          ) : null}
+
+          {form.frequencyType === FREQUENCY_TYPE.ONCE ? (
+            <div style={{ marginTop: "0.8rem", maxWidth: 320 }}>
+              <label className="label" htmlFor="oneTimeDate">
+                {a.oneTimeDate}
+              </label>
+              <input
+                id="oneTimeDate"
+                className="input"
+                type="date"
+                required
+                value={form.oneTimeDate}
+                onChange={(event) => setForm((cur) => ({ ...cur, oneTimeDate: event.target.value }))}
+              />
             </div>
           ) : null}
 
@@ -477,14 +485,14 @@ export function TaskManager() {
                   </label>
                   <div style={{ fontWeight: 600 }}>{task.title}</div>
                   <div style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
-                    {task.timeBlock.toLowerCase()} · {task.frequencyType === FREQUENCY_TYPE.DAILY ? a.daily : a.selectedWeekdays}
+                    {timeBlockLabel(task.timeBlock)} ·{" "}
+                    {task.frequencyType === FREQUENCY_TYPE.DAILY
+                      ? a.daily
+                      : task.frequencyType === FREQUENCY_TYPE.WEEKDAYS
+                        ? a.selectedWeekdays
+                        : `${a.oneTime}${task.oneTimeDate ? ` (${task.oneTimeDate})` : ""}`}
                   </div>
                   {task.notes ? <div style={{ marginTop: "0.25rem", color: "var(--muted)" }}>{task.notes}</div> : null}
-                  {!task.isActive ? (
-                    <div className="pill pill-skipped" style={{ marginTop: "0.4rem" }}>
-                      {a.inactive}
-                    </div>
-                  ) : null}
                 </div>
                 <div style={{ display: "flex", gap: "0.4rem" }}>
                   <button className="btn btn-secondary" onClick={() => startEdit(task)}>

@@ -19,7 +19,13 @@ export const taskTemplateSchema = z.object({
   timeBlock: z.enum(TimeBlock),
   frequencyType: z.enum(FrequencyType),
   weekdays: z.array(z.number().int().min(0).max(6)).optional(),
-  isActive: z.boolean().optional(),
+  oneTimeDate: z
+    .string()
+    .optional()
+    .nullable()
+    .refine((value) => value == null || !Number.isNaN(new Date(value).getTime()), {
+      message: "Invalid one-time date.",
+    }),
 });
 
 export const updateTaskStatusSchema = z.object({

@@ -10,9 +10,14 @@ function includesWeekday(weekdays: unknown, day: number): boolean {
 function templateAppliesOnDate(
   frequencyType: FrequencyType,
   weekdays: unknown,
+  oneTimeDate: Date | null,
   date: Date,
 ): boolean {
   if (frequencyType === FrequencyType.DAILY) return true;
+  if (frequencyType === FrequencyType.ONCE) {
+    if (!oneTimeDate) return false;
+    return toDayStart(oneTimeDate).getTime() === date.getTime();
+  }
   const day = date.getUTCDay();
   return includesWeekday(weekdays, day);
 }
@@ -23,7 +28,6 @@ export async function ensureDailyTasks(householdId: string, date = new Date()) {
   const templates = await prisma.taskTemplate.findMany({
     where: {
       householdId,
-      isActive: true,
     },
     orderBy: [{ timeBlock: "asc" }, { createdAt: "asc" }],
   });
@@ -35,7 +39,9 @@ export async function ensureDailyTasks(householdId: string, date = new Date()) {
   const existingTemplateIds = new Set(existing.map((item) => item.templateId));
 
   const toCreate = templates
-    .filter((template) => templateAppliesOnDate(template.frequencyType, template.weekdays, dayStart))
+    .filter((template) =>
+      templateAppliesOnDate(template.frequencyType, template.weekdays, template.oneTimeDate, dayStart),
+    )
     .filter((template) => !existingTemplateIds.has(template.id))
     .map((template) => ({
       householdId,

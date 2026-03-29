@@ -17,6 +17,7 @@ export type TimeBlock = (typeof TIME_BLOCK)[keyof typeof TIME_BLOCK];
 export const FREQUENCY_TYPE = {
   DAILY: "DAILY",
   WEEKDAYS: "WEEKDAYS",
+  ONCE: "ONCE",
 } as const;
 
 export type FrequencyType = (typeof FREQUENCY_TYPE)[keyof typeof FREQUENCY_TYPE];

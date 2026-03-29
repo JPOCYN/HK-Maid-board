@@ -35,7 +35,7 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
-  const [resetting, setResetting] = useState(false);
+  const [resettingUrl, setResettingUrl] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
 
   const load = useCallback(async () => {
@@ -74,16 +74,16 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
     });
   }
 
-  async function resetToday() {
-    setResetting(true);
+  async function resetBoardUrl() {
+    setResettingUrl(true);
     try {
-      const response = await fetch("/api/admin/today/reset", { method: "POST" });
+      const response = await fetch("/api/admin/board-url/reset", { method: "POST" });
       if (!response.ok) throw new Error("Failed");
       await load();
     } catch {
-      setError("Could not reset today tasks.");
+      setError("Could not reset board URL.");
     } finally {
-      setResetting(false);
+      setResettingUrl(false);
     }
   }
 
@@ -146,8 +146,8 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
             <button type="button" className="btn btn-secondary" onClick={copyBoardUrl}>
               {copied ? a.copied : a.copyUrl}
             </button>
-            <button type="button" className="btn btn-danger" onClick={resetToday} disabled={resetting}>
-              {resetting ? a.saving : a.resetToday}
+            <button type="button" className="btn btn-danger" onClick={resetBoardUrl} disabled={resettingUrl}>
+              {resettingUrl ? a.saving : a.resetUrl}
             </button>
           </div>
         </section>

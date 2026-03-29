@@ -19,7 +19,8 @@ export async function PUT(request: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const houseRules = typeof body.houseRules === "string" ? body.houseRules : "";
+  const raw = typeof body.houseRules === "string" ? body.houseRules : "";
+  const houseRules = raw.slice(0, 10000);
 
   await prisma.household.update({
     where: { id: session.householdId },

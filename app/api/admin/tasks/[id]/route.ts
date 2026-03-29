@@ -46,10 +46,8 @@ export async function PATCH(request: Request, { params }: Params) {
     }
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unexpected server error while updating task.";
-    return NextResponse.json({ error: `Could not update task. ${message}` }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Could not update task." }, { status: 500 });
   }
 }
 

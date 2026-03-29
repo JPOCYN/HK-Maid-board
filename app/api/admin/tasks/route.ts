@@ -62,10 +62,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(task, { status: 201 });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unexpected server error while creating task.";
-    return NextResponse.json({ error: `Could not create task. ${message}` }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Could not create task." }, { status: 500 });
   }
 }
 
@@ -88,9 +86,7 @@ export async function DELETE(request: Request) {
     });
 
     return NextResponse.json({ ok: true, deleted: deleted.count });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unexpected server error while deleting tasks.";
-    return NextResponse.json({ error: `Could not delete selected tasks. ${message}` }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Could not delete selected tasks." }, { status: 500 });
   }
 }

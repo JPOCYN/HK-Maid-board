@@ -14,6 +14,9 @@ export function LandingClient() {
         <div className="landing-logo">{t.common.appName}</div>
         <div className="landing-nav-right">
           <LanguageSwitcher compact />
+          <Link href="/enter" className="landing-btn-secondary" style={{ padding: "0.55rem 1rem", fontSize: "0.95rem" }}>
+            {l.enterCode}
+          </Link>
           <Link href="/admin/login" className="landing-btn-secondary" style={{ padding: "0.55rem 1rem", fontSize: "0.95rem" }}>
             {l.loginCta}
           </Link>
@@ -24,6 +27,9 @@ export function LandingClient() {
         <h1>{l.heroTitle}</h1>
         <p>{l.heroSub}</p>
         <div className="landing-hero-actions">
+          <Link href="/enter" className="landing-btn-secondary">
+            {l.enterCode}
+          </Link>
           <Link href="/admin/signup" className="landing-btn-primary">
             {l.getStarted} {"\u2192"}
           </Link>

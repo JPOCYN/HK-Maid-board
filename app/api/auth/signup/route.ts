@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { generateBoardToken } from "@/lib/board-token";
+import { generateUniqueHomeCode } from "@/lib/home-code";
 import { prisma } from "@/lib/prisma";
 import { signupSchema } from "@/lib/schemas";
 import { createSession } from "@/lib/session";
@@ -47,9 +48,10 @@ export async function POST(request: Request) {
 
     const slug = await uniqueSlug(householdName);
     const passwordHash = await hash(password, 12);
+    const homeCode = await generateUniqueHomeCode();
 
     const household = await prisma.household.create({
-      data: { name: householdName, slug, boardToken: generateBoardToken() },
+      data: { name: householdName, slug, boardToken: generateBoardToken(), homeCode },
     });
 
     const user = await prisma.adminUser.create({
@@ -68,7 +70,10 @@ export async function POST(request: Request) {
       email: user.email,
     });
 
-    return NextResponse.json({ ok: true, boardToken: household.boardToken }, { status: 201 });
+    return NextResponse.json(
+      { ok: true, boardToken: household.boardToken, homeCode: household.homeCode },
+      { status: 201 },
+    );
   } catch {
     return NextResponse.json({ error: "Unable to create account right now." }, { status: 500 });
   }

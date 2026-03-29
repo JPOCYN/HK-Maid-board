@@ -1,6 +1,7 @@
 import { PrismaClient, FrequencyType, Prisma, TimeBlock } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { generateBoardToken } from "@/lib/board-token";
+import { generateUniqueHomeCode } from "@/lib/home-code";
 
 const prisma = new PrismaClient();
 
@@ -33,11 +34,17 @@ async function main() {
   const password = process.env.ADMIN_PASSWORD ?? "ChangeThisStrongPassword123!";
   const householdName = process.env.DEFAULT_HOUSEHOLD_NAME ?? "Home";
   const householdSlug = process.env.DEFAULT_HOUSEHOLD_SLUG ?? "home";
+  const homeCode = await generateUniqueHomeCode();
 
   const household = await prisma.household.upsert({
     where: { slug: householdSlug },
     update: { name: householdName },
-    create: { name: householdName, slug: householdSlug, boardToken: generateBoardToken() },
+    create: {
+      name: householdName,
+      slug: householdSlug,
+      boardToken: generateBoardToken(),
+      homeCode,
+    },
   });
 
   const passwordHash = await hash(password, 12);

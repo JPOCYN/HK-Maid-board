@@ -40,7 +40,7 @@ export function AdminNav({ boardToken }: { boardToken?: string }) {
             );
           })}
           <Link
-            href={boardToken ? `/board/${boardToken}` : "/"}
+            href={boardToken ? `/board/${boardToken}` : "/enter"}
             className="btn"
             style={{ padding: "0.45rem 0.8rem", background: "#ecfdf5", color: "#166534" }}
           >

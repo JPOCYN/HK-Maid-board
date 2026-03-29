@@ -24,6 +24,8 @@ type Response = {
     completionRate: number;
   };
   tasks: Task[];
+  boardToken: string | null;
+  homeCode: string | null;
 };
 
 export function TodayDashboard({ boardToken }: { boardToken?: string }) {
@@ -32,7 +34,9 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   const [data, setData] = useState<Response | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -53,10 +57,20 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   }, [load]);
 
   function copyBoardUrl() {
-    const url = `${window.location.origin}/board/${boardToken}`;
+    const token = data?.boardToken ?? boardToken;
+    if (!token) return;
+    const url = `${window.location.origin}/board/${token}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function copyHomeCode() {
+    if (!data?.homeCode) return;
+    navigator.clipboard.writeText(data.homeCode).then(() => {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
     });
   }
 
@@ -73,15 +87,61 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
     }
   }
 
+  async function regenerateHomeCode() {
+    setRegenerating(true);
+    try {
+      const response = await fetch("/api/admin/home-code/regenerate", { method: "POST" });
+      if (!response.ok) throw new Error("Failed");
+      await load();
+    } catch {
+      setError("Could not regenerate home code.");
+    } finally {
+      setRegenerating(false);
+    }
+  }
+
   return (
     <div style={{ display: "grid", gap: "1rem" }}>
-      {boardToken ? (
+      {data?.homeCode ? (
+        <section className="card" style={{ padding: "1rem" }}>
+          <h3 style={{ marginTop: 0 }}>{a.yourHomeCode}</h3>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+            <code
+              style={{
+                background: "#f1f5f9",
+                padding: "0.5rem 0.85rem",
+                borderRadius: 8,
+                fontSize: "1.1rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+              }}
+            >
+              {data.homeCode}
+            </code>
+            <button type="button" className="btn btn-secondary" onClick={copyHomeCode}>
+              {copiedCode ? a.copied : a.copyUrl}
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger"
+              onClick={regenerateHomeCode}
+              disabled={regenerating}
+            >
+              {regenerating ? a.regenerating : a.regenerateCode}
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {(data?.boardToken ?? boardToken) ? (
         <section className="card" style={{ padding: "1rem" }}>
           <h3 style={{ marginTop: 0 }}>{a.boardUrl}</h3>
           <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>{a.boardUrlHint}</p>
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
             <code style={{ background: "#f1f5f9", padding: "0.4rem 0.7rem", borderRadius: 8, fontSize: "0.9rem", wordBreak: "break-all" }}>
-              {typeof window !== "undefined" ? `${window.location.origin}/board/${boardToken}` : `/board/${boardToken}`}
+              {typeof window !== "undefined"
+                ? `${window.location.origin}/board/${data?.boardToken ?? boardToken}`
+                : `/board/${data?.boardToken ?? boardToken}`}
             </code>
             <button type="button" className="btn btn-secondary" onClick={copyBoardUrl}>
               {copied ? a.copied : a.copyUrl}

@@ -94,6 +94,7 @@ function TaskCard({ task, busy, onUpdate }: { task: Task; busy: boolean; onUpdat
 export function BoardClient({ slug }: { slug: string }) {
   const { t } = useTranslation();
   const b = t.board;
+  const e = t.entry;
 
   const [data, setData] = useState<BoardPayload | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -168,6 +169,13 @@ export function BoardClient({ slug }: { slug: string }) {
     finally { setBusyId(null); }
   }
 
+  function changeCode() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("maidboard_home_code");
+      window.location.href = "/enter";
+    }
+  }
+
   if (!loaded) return <main className="board"><div className="board-loading"><div className="board-spinner" /><span>{b.loading}</span></div></main>;
 
   return (
@@ -179,6 +187,14 @@ export function BoardClient({ slug }: { slug: string }) {
         </div>
         <div className="board-header-right">
           <LanguageSwitcher compact />
+          <button
+            type="button"
+            className="btn"
+            style={{ background: "#f1f5f9", color: "#475569", padding: "0.4rem 0.7rem" }}
+            onClick={changeCode}
+          >
+            {e.changeCode}
+          </button>
           <div className="board-clock">{clock}</div>
           <ProgressRing completed={data?.progress.completed ?? 0} total={data?.progress.total ?? 0} />
         </div>

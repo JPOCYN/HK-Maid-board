@@ -23,6 +23,9 @@ type BoardPayload = {
 const BLOCKS = ["MORNING", "AFTERNOON", "EVENING"] as const;
 const RING_RADIUS = 33;
 const RING_CIRC = 2 * Math.PI * RING_RADIUS;
+const LAYOUT_KEY = "maidboard:board:layout";
+
+type BoardLayout = "horizontal" | "vertical";
 
 function ProgressRing({ completed, total }: { completed: number; total: number }) {
   const pct = total > 0 ? completed / total : 0;
@@ -91,17 +94,50 @@ function TaskCard({ task, busy, onUpdate }: { task: Task; busy: boolean; onUpdat
   );
 }
 
+function LayoutToggle({ layout, onChange, labels }: { layout: BoardLayout; onChange: (l: BoardLayout) => void; labels: { vertical: string; horizontal: string } }) {
+  return (
+    <div className="board-layout-toggle">
+      <button
+        type="button"
+        className={`board-layout-btn ${layout === "vertical" ? "board-layout-btn-active" : ""}`}
+        onClick={() => onChange("vertical")}
+      >
+        {"\u2630"} {labels.vertical}
+      </button>
+      <button
+        type="button"
+        className={`board-layout-btn ${layout === "horizontal" ? "board-layout-btn-active" : ""}`}
+        onClick={() => onChange("horizontal")}
+      >
+        {"\u2637"} {labels.horizontal}
+      </button>
+    </div>
+  );
+}
+
 export function BoardClient({ slug }: { slug: string }) {
   const { t } = useTranslation();
   const b = t.board;
-  const e = t.entry;
 
   const [data, setData] = useState<BoardPayload | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [clock, setClock] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [layout, setLayout] = useState<BoardLayout>("horizontal");
   const lastFetch = useRef(0);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(LAYOUT_KEY) as BoardLayout | null;
+      if (saved === "vertical" || saved === "horizontal") setLayout(saved);
+    } catch { /* private mode */ }
+  }, []);
+
+  function handleLayoutChange(next: BoardLayout) {
+    setLayout(next);
+    try { window.localStorage.setItem(LAYOUT_KEY, next); } catch { /* */ }
+  }
 
   function formatTime() {
     return new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
@@ -169,33 +205,42 @@ export function BoardClient({ slug }: { slug: string }) {
     finally { setBusyId(null); }
   }
 
-  function changeCode() {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("maidboard_home_code");
-      window.location.href = "/enter";
-    }
+  function exitBoard() {
+    const confirmed = window.confirm(b.exitConfirm);
+    if (!confirmed) return;
+    localStorage.removeItem("maidboard_home_code");
+    window.location.href = "/enter";
   }
 
   if (!loaded) return <main className="board"><div className="board-loading"><div className="board-spinner" /><span>{b.loading}</span></div></main>;
 
   return (
     <main className="board">
+      {/* Optimized topbar: left=greeting+exit, center=clock+date, right=layout+lang+progress */}
       <header className="board-header">
         <div className="board-header-left">
           <div className="board-greeting">{greeting}</div>
-          <div className="board-date">{formatDate()}</div>
-        </div>
-        <div className="board-header-right">
-          <LanguageSwitcher compact />
           <button
             type="button"
-            className="btn btn-ghost"
-            style={{ padding: "0.35rem 0.65rem", fontSize: "0.82rem" }}
-            onClick={changeCode}
+            className="board-exit-btn"
+            onClick={exitBoard}
           >
-            {e.changeCode}
+            {"\u2190"} {b.exitBoard}
           </button>
+        </div>
+
+        <div className="board-header-center">
           <div className="board-clock">{clock}</div>
+          <div className="board-date">{formatDate()}</div>
+        </div>
+
+        <div className="board-header-right">
+          <LayoutToggle
+            layout={layout}
+            onChange={handleLayoutChange}
+            labels={{ vertical: b.layoutVertical, horizontal: b.layoutHorizontal }}
+          />
+          <LanguageSwitcher compact />
           <ProgressRing completed={data?.progress.completed ?? 0} total={data?.progress.total ?? 0} />
         </div>
       </header>
@@ -219,7 +264,7 @@ export function BoardClient({ slug }: { slug: string }) {
         ) : null}
 
         {allTasks.length > 0 ? (
-          <div className="board-columns">
+          <div className={layout === "horizontal" ? "board-columns" : "board-columns-vertical"}>
             {BLOCKS.map((block) => {
               const tasks = data?.groups[block] ?? [];
               const meta = blockMeta[block];

@@ -188,6 +188,33 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
               {regenerating ? a.regenerating : a.regenerateCode}
             </button>
           </div>
+          <div
+            style={{
+              marginTop: "0.75rem",
+              padding: "0.65rem 0.85rem",
+              background: "rgba(120,120,128,0.04)",
+              borderRadius: 12,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "0.5rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "#1c1c1e" }}>{a.entryPageLink}</div>
+              <div style={{ fontSize: "0.8rem", color: "#8e8e93" }}>{a.entryPageHint}</div>
+            </div>
+            <a
+              href="/enter"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary"
+              style={{ fontSize: "0.82rem", padding: "0.35rem 0.75rem", textDecoration: "none" }}
+            >
+              {typeof window !== "undefined" ? `${window.location.origin}/enter` : "/enter"} ↗
+            </a>
+          </div>
         </section>
       ) : null}
 

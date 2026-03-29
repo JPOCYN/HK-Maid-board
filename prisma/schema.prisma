@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum TimeBlock {
+  MORNING
+  AFTERNOON
+  EVENING
+}
+
+enum FrequencyType {
+  DAILY
+  WEEKDAYS
+}
+
+enum TaskStatus {
+  PENDING
+  COMPLETED
+  SKIPPED
+}
+
+model Household {
+  id           String         @id @default(cuid())
+  name         String
+  slug         String         @unique
+  isActive     Boolean        @default(true)
+  admins       AdminUser[]
+  templates    TaskTemplate[]
+  dailyTasks   DailyTask[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  householdId  String
+  email        String    @unique
+  passwordHash String
+  name         String
+  isActive     Boolean   @default(true)
+  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model TaskTemplate {
+  id             String        @id @default(cuid())
+  householdId    String
+  title          String
+  notes          String?
+  timeBlock      TimeBlock
+  frequencyType  FrequencyType
+  weekdays       Json?
+  isActive       Boolean       @default(true)
+  household      Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  dailyTasks     DailyTask[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([householdId, isActive])
+}
+
+model DailyTask {
+  id            String      @id @default(cuid())
+  householdId   String
+  templateId    String
+  date          DateTime
+  titleSnapshot String
+  notesSnapshot String?
+  timeBlock     TimeBlock
+  status        TaskStatus  @default(PENDING)
+  completedAt   DateTime?
+  skippedAt     DateTime?
+  household     Household   @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  template      TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([householdId, date, templateId])
+  @@index([householdId, date])
+}

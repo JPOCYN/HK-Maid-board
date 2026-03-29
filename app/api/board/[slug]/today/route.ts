@@ -10,7 +10,7 @@ export async function GET(_request: Request, { params }: Params) {
     const { slug: token } = await params;
     const household = await prisma.household.findUnique({
       where: { boardToken: token },
-      select: { id: true, name: true, isActive: true },
+      select: { id: true, name: true, isActive: true, houseRules: true },
     });
 
     if (!household || !household.isActive) {
@@ -32,6 +32,7 @@ export async function GET(_request: Request, { params }: Params) {
     return NextResponse.json(
       {
         household: household.name,
+        houseRules: household.houseRules ?? "",
         progress: {
           total,
           completed,

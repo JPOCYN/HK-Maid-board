@@ -14,6 +14,7 @@ export function AdminNav({ boardToken }: { boardToken?: string }) {
   const links = [
     { href: "/admin", label: a.dashboard },
     { href: "/admin/tasks", label: a.tasks },
+    { href: "/admin/rules", label: a.rulesTab },
     { href: "/admin/history", label: a.history },
   ];
 

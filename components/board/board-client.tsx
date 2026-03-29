@@ -16,6 +16,7 @@ type Task = {
 
 type BoardPayload = {
   household: string;
+  houseRules: string;
   progress: { total: number; completed: number; skipped: number; pending: number; completionRate: number };
   groups: Record<"MORNING" | "AFTERNOON" | "EVENING", Task[]>;
 };
@@ -94,6 +95,31 @@ function TaskCard({ task, busy, onUpdate }: { task: Task; busy: boolean; onUpdat
   );
 }
 
+function HouseRulesModal({ rules, labels, onClose }: { rules: string; labels: { title: string; empty: string; close: string }; onClose: () => void }) {
+  return (
+    <div className="board-modal-overlay" onClick={onClose}>
+      <div className="board-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="board-modal-header">
+          <h2 className="board-modal-title">{"\uD83D\uDCCB"} {labels.title}</h2>
+          <button type="button" className="board-modal-close" onClick={onClose}>{"\u2715"}</button>
+        </div>
+        <div className="board-modal-body">
+          {rules.trim() ? (
+            <pre className="board-rules-content">{rules}</pre>
+          ) : (
+            <p className="board-rules-empty">{labels.empty}</p>
+          )}
+        </div>
+        <div className="board-modal-footer">
+          <button type="button" className="btn btn-secondary" style={{ padding: "0.5rem 1.5rem", fontSize: "0.95rem" }} onClick={onClose}>
+            {labels.close}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LayoutToggle({ layout, onChange, labels }: { layout: BoardLayout; onChange: (l: BoardLayout) => void; labels: { vertical: string; horizontal: string } }) {
   return (
     <div className="board-layout-toggle">
@@ -125,6 +151,7 @@ export function BoardClient({ slug }: { slug: string }) {
   const [clock, setClock] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [layout, setLayout] = useState<BoardLayout>("horizontal");
+  const [showRules, setShowRules] = useState(false);
   const lastFetch = useRef(0);
 
   useEffect(() => {
@@ -235,6 +262,13 @@ export function BoardClient({ slug }: { slug: string }) {
         </div>
 
         <div className="board-header-right">
+          <button
+            type="button"
+            className="board-rules-btn"
+            onClick={() => setShowRules(true)}
+          >
+            {"\uD83D\uDCCB"} {b.houseRulesBtn}
+          </button>
           <LayoutToggle
             layout={layout}
             onChange={handleLayoutChange}
@@ -292,6 +326,14 @@ export function BoardClient({ slug }: { slug: string }) {
         <span className={`sync-dot ${error ? "sync-dot-error" : ""}`} />
         {error ? b.offline : b.live}
       </div>
+
+      {showRules ? (
+        <HouseRulesModal
+          rules={data?.houseRules ?? ""}
+          labels={{ title: b.houseRulesTitle, empty: b.houseRulesEmpty, close: b.houseRulesClose }}
+          onClose={() => setShowRules(false)}
+        />
+      ) : null}
     </main>
   );
 }

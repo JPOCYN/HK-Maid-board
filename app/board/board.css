@@ -571,3 +571,136 @@
   from { opacity: 0; transform: scale(0.92); }
   to   { opacity: 1; transform: scale(1); }
 }
+
+/* ── House Rules button ── */
+
+.board-rules-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #007aff;
+  background: rgba(0, 122, 255, 0.08);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 200ms ease, transform 180ms ease;
+  white-space: nowrap;
+}
+
+.board-rules-btn:hover {
+  background: rgba(0, 122, 255, 0.14);
+}
+
+.board-rules-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── House Rules modal ── */
+
+.board-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1.5rem;
+  animation: modalFadeIn 200ms ease both;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.board-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: min(600px, 100%);
+  max-height: 80dvh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: modalSlideUp 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.board-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.4rem;
+  border-bottom: 1px solid rgba(60, 60, 67, 0.08);
+  flex-shrink: 0;
+}
+
+.board-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1c1c1e;
+}
+
+.board-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(120, 120, 128, 0.08);
+  color: #636366;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: background 200ms ease;
+}
+
+.board-modal-close:hover {
+  background: rgba(120, 120, 128, 0.16);
+}
+
+.board-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 1.4rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.board-rules-content {
+  font-family: inherit;
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: #1c1c1e;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.board-rules-empty {
+  text-align: center;
+  color: #8e8e93;
+  font-size: 1rem;
+  padding: 2rem 0;
+  margin: 0;
+}
+
+.board-modal-footer {
+  padding: 0.85rem 1.4rem;
+  border-top: 1px solid rgba(60, 60, 67, 0.08);
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}

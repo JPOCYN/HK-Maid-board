@@ -32,6 +32,7 @@ model Household {
   slug         String         @unique
   boardToken   String         @unique
   homeCode     String         @unique
+  houseRules   String?
   isActive     Boolean        @default(true)
   admins       AdminUser[]
   templates    TaskTemplate[]

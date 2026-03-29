@@ -1,30 +1,48 @@
+/* ── iOS-inspired Design System ── */
+
 :root {
-  --bg: #f4f7fb;
+  --bg: #f2f2f7;
   --card: #ffffff;
-  --text: #1b2430;
-  --muted: #5d6b82;
-  --primary: #2f6fed;
-  --success: #1a936f;
-  --warning: #d97706;
-  --border: #d8e0ee;
+  --text: #1c1c1e;
+  --muted: #8e8e93;
+  --secondary: #636366;
+  --primary: #007aff;
+  --primary-light: rgba(0, 122, 255, 0.1);
+  --success: #34c759;
+  --success-light: rgba(52, 199, 89, 0.12);
+  --warning: #ff9500;
+  --warning-light: rgba(255, 149, 0, 0.12);
+  --danger: #ff3b30;
+  --danger-light: rgba(255, 59, 48, 0.1);
+  --border: rgba(60, 60, 67, 0.12);
+  --separator: rgba(60, 60, 67, 0.06);
+  --fill: rgba(120, 120, 128, 0.08);
+  --fill-secondary: rgba(120, 120, 128, 0.12);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --glass: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.5);
 }
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
-  font-family:
-    "Inter",
-    "Segoe UI",
-    Roboto,
-    Arial,
-    sans-serif;
+  font-family: -apple-system, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -32,29 +50,48 @@ a {
   text-decoration: none;
 }
 
+/* ── Container ── */
+
 .container {
   width: min(1100px, 92vw);
   margin: 0 auto;
 }
 
+/* ── Card ── */
+
 .card {
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: none;
 }
 
+/* ── Buttons ── */
+
 .btn {
-  border: 0;
-  border-radius: 10px;
-  padding: 0.65rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.7rem 1.1rem;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
+  font-family: inherit;
+  transition: transform 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 180ms ease,
+              background 180ms ease;
+  user-select: none;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -63,53 +100,82 @@ a {
   color: #fff;
 }
 
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
 .btn-secondary {
-  background: #eaf0ff;
-  color: #244089;
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(0, 122, 255, 0.16);
 }
 
 .btn-danger {
-  background: #ffe8e8;
-  color: #8f2626;
+  background: var(--danger-light);
+  color: var(--danger);
 }
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(255, 59, 48, 0.16);
+}
+
+.btn-ghost {
+  background: var(--fill);
+  color: var(--secondary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--fill-secondary);
+}
+
+/* ── Status pills ── */
 
 .pill {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  padding: 0.2rem 0.65rem;
+  padding: 0.22rem 0.65rem;
   font-size: 0.78rem;
   font-weight: 600;
-  border: 1px solid transparent;
+  border: none;
 }
 
 .pill-pending {
-  color: #334155;
-  background: #f1f5f9;
-  border-color: #e2e8f0;
+  color: var(--muted);
+  background: var(--fill);
 }
 
 .pill-completed {
-  color: #065f46;
-  background: #d1fae5;
-  border-color: #a7f3d0;
+  color: #1b7a3d;
+  background: var(--success-light);
 }
 
 .pill-skipped {
-  color: #92400e;
-  background: #ffedd5;
-  border-color: #fed7aa;
+  color: #9a5b13;
+  background: var(--warning-light);
 }
 
-.input,
-.select,
-.textarea {
+/* ── Form elements ── */
+
+.input, .select, .textarea {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: 0.72rem 0.85rem;
   font: inherit;
-  background: #fff;
+  font-size: 1rem;
+  background: var(--card);
+  color: var(--text);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  outline: none;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
 }
 
 .textarea {
@@ -119,31 +185,91 @@ a {
 
 .label {
   display: block;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 0.35rem;
+  color: var(--secondary);
+  margin-bottom: 0.4rem;
 }
+
+/* ── KPI Grid ── */
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.65rem;
 }
 
 .kpi-card {
-  padding: 0.9rem;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: #fff;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--fill);
 }
 
 .kpi-label {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .kpi-value {
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  margin-top: 0.2rem;
+  margin-top: 0.15rem;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Utility ── */
+
+.ios-section-header {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.ios-grouped {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.ios-row {
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ios-row + .ios-row {
+  border-top: 1px solid var(--separator);
+}
+
+/* ── Animations ── */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
 }

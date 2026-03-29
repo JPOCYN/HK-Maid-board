@@ -142,6 +142,7 @@ export function TaskManager() {
       weekdays: task.weekdays ?? [1, 2, 3, 4, 5],
       oneTimeDate: task.oneTimeDate ?? "",
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function saveTask(event: FormEvent) {
@@ -211,7 +212,6 @@ export function TaskManager() {
   async function deleteTask(id: string) {
     const confirmed = window.confirm(a.deleteConfirm);
     if (!confirmed) return;
-
     const response = await fetch(`/api/admin/tasks/${id}`, { method: "DELETE" });
     if (response.ok) {
       await loadTasks();
@@ -224,13 +224,11 @@ export function TaskManager() {
     if (selectedIds.length === 0) return;
     const confirmed = window.confirm(a.deleteSelectedConfirm);
     if (!confirmed) return;
-
     const response = await fetch("/api/admin/tasks", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids: selectedIds }),
     });
-
     if (response.ok) {
       setSelectedIds([]);
       await loadTasks();
@@ -256,47 +254,34 @@ export function TaskManager() {
   }
 
   return (
-    <div style={{ display: "grid", gap: "1rem" }}>
-      <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>{a.quickAddTitle}</h2>
-        <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>{a.quickAddHint}</p>
-        <div style={{ display: "grid", gap: "1rem" }}>
+    <div style={{ display: "grid", gap: "0.85rem" }}>
+      {/* Quick Add Presets */}
+      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+        <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.15rem" }}>{a.quickAddTitle}</div>
+        <p style={{ color: "var(--muted)", margin: "0 0 1rem", fontSize: "0.88rem" }}>{a.quickAddHint}</p>
+        <div style={{ display: "grid", gap: "0.85rem" }}>
           {groupedPresets.map((group) => (
             <div key={group.categoryKey}>
-              <div
-                style={{
-                  fontWeight: 700,
-                  color: "#334155",
-                  fontSize: "0.95rem",
-                  marginBottom: "0.55rem",
-                }}
-              >
+              <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: "0.4rem", padding: "0 0.1rem" }}>
                 {a[group.categoryKey]}
               </div>
-              <div style={{ display: "grid", gap: "0.6rem", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-                {group.items.map((preset) => (
+              <div className="ios-grouped">
+                {group.items.map((preset, idx) => (
                   <div
                     key={preset.key}
-                    style={{
-                      border: "1px solid var(--border)",
-                      borderRadius: 12,
-                      padding: "0.7rem",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "0.6rem",
-                    }}
+                    className="ios-row"
+                    style={{ borderTop: idx > 0 ? "1px solid var(--separator)" : "none" }}
                   >
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{a[preset.key]}</div>
-                      <div style={{ color: "var(--muted)", fontSize: "0.82rem" }}>
-                        {timeBlockLabel(preset.timeBlock)} ·{" "}
-                        {preset.frequencyType === FREQUENCY_TYPE.DAILY ? a.daily : a.selectedWeekdays}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: "0.92rem" }}>{a[preset.key]}</div>
+                      <div style={{ color: "var(--muted)", fontSize: "0.78rem" }}>
+                        {timeBlockLabel(preset.timeBlock)} · {preset.frequencyType === FREQUENCY_TYPE.DAILY ? a.daily : a.selectedWeekdays}
                       </div>
                     </div>
                     <button
                       type="button"
                       className="btn btn-secondary"
+                      style={{ padding: "0.35rem 0.7rem", fontSize: "0.82rem", flexShrink: 0 }}
                       onClick={() => addPresetTask(preset)}
                       disabled={presetLoadingKey === preset.key}
                     >
@@ -310,17 +295,14 @@ export function TaskManager() {
         </div>
       </section>
 
-      <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>{formTitle}</h2>
-        <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>
-          {a.taskTitleHint}
-        </p>
+      {/* Create / Edit Task */}
+      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+        <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.15rem" }}>{formTitle}</div>
+        <p style={{ color: "var(--muted)", margin: "0 0 1rem", fontSize: "0.88rem" }}>{a.taskTitleHint}</p>
         <form onSubmit={saveTask}>
-          <div style={{ display: "grid", gap: "0.8rem", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+          <div style={{ display: "grid", gap: "0.85rem", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
             <div>
-              <label className="label" htmlFor="title">
-                {a.taskTitle}
-              </label>
+              <label className="label" htmlFor="title">{a.taskTitle}</label>
               <input
                 id="title"
                 className="input"
@@ -330,9 +312,7 @@ export function TaskManager() {
               />
             </div>
             <div>
-              <label className="label" htmlFor="timeBlock">
-                {a.timeBlock}
-              </label>
+              <label className="label" htmlFor="timeBlock">{a.timeBlock}</label>
               <select
                 id="timeBlock"
                 className="select"
@@ -346,10 +326,8 @@ export function TaskManager() {
             </div>
           </div>
 
-          <div style={{ marginTop: "0.8rem" }}>
-            <label className="label" htmlFor="notes">
-              {a.notes}
-            </label>
+          <div style={{ marginTop: "0.85rem" }}>
+            <label className="label" htmlFor="notes">{a.notes}</label>
             <textarea
               id="notes"
               className="textarea"
@@ -358,39 +336,41 @@ export function TaskManager() {
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem", marginTop: "0.8rem" }}>
-            <div>
-              <label className="label" htmlFor="frequency">
-                {a.frequency}
-              </label>
-              <select
-                id="frequency"
-                className="select"
-                value={form.frequencyType}
-                onChange={(event) => setForm((cur) => ({ ...cur, frequencyType: event.target.value as FrequencyType }))}
-              >
-                <option value={FREQUENCY_TYPE.DAILY}>{a.daily}</option>
-                <option value={FREQUENCY_TYPE.WEEKDAYS}>{a.specificWeekdays}</option>
-                <option value={FREQUENCY_TYPE.ONCE}>{a.oneTime}</option>
-              </select>
-            </div>
-            <div />
+          <div style={{ marginTop: "0.85rem", maxWidth: 320 }}>
+            <label className="label" htmlFor="frequency">{a.frequency}</label>
+            <select
+              id="frequency"
+              className="select"
+              value={form.frequencyType}
+              onChange={(event) => setForm((cur) => ({ ...cur, frequencyType: event.target.value as FrequencyType }))}
+            >
+              <option value={FREQUENCY_TYPE.DAILY}>{a.daily}</option>
+              <option value={FREQUENCY_TYPE.WEEKDAYS}>{a.specificWeekdays}</option>
+              <option value={FREQUENCY_TYPE.ONCE}>{a.oneTime}</option>
+            </select>
           </div>
 
           {form.frequencyType === FREQUENCY_TYPE.WEEKDAYS ? (
-            <div style={{ marginTop: "0.8rem" }}>
+            <div style={{ marginTop: "0.85rem" }}>
               <div className="label">{a.weekdays}</div>
-              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
                 {a.weekdayNames.map((label, day) => (
                   <button
                     type="button"
                     key={day}
-                    className="btn"
                     onClick={() => toggleWeekday(day)}
                     style={{
-                      background: form.weekdays.includes(day) ? "#dce7ff" : "#f3f6fc",
-                      color: form.weekdays.includes(day) ? "#1d3b82" : "#334155",
-                      padding: "0.45rem 0.7rem",
+                      width: 42,
+                      height: 42,
+                      borderRadius: "50%",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      fontFamily: "inherit",
+                      background: form.weekdays.includes(day) ? "#007aff" : "rgba(120,120,128,0.08)",
+                      color: form.weekdays.includes(day) ? "#fff" : "#636366",
+                      transition: "all 180ms ease",
                     }}
                   >
                     {label}
@@ -401,10 +381,8 @@ export function TaskManager() {
           ) : null}
 
           {form.frequencyType === FREQUENCY_TYPE.ONCE ? (
-            <div style={{ marginTop: "0.8rem", maxWidth: 320 }}>
-              <label className="label" htmlFor="oneTimeDate">
-                {a.oneTimeDate}
-              </label>
+            <div style={{ marginTop: "0.85rem", maxWidth: 320 }}>
+              <label className="label" htmlFor="oneTimeDate">{a.oneTimeDate}</label>
               <input
                 id="oneTimeDate"
                 className="input"
@@ -416,13 +394,13 @@ export function TaskManager() {
             </div>
           ) : null}
 
-          {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
-          <div style={{ display: "flex", gap: "0.55rem", marginTop: "0.8rem" }}>
-            <button className="btn btn-primary" type="submit" disabled={loading}>
+          {error ? <p style={{ color: "var(--danger)", fontSize: "0.88rem" }}>{error}</p> : null}
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
+            <button className="btn btn-primary" type="submit" disabled={loading} style={{ minHeight: 46, borderRadius: 14, fontSize: "0.95rem" }}>
               {loading ? a.saving : editingId ? a.updateTemplate : a.createTemplateBtn}
             </button>
             {editingId ? (
-              <button type="button" className="btn btn-secondary" onClick={resetForm}>
+              <button type="button" className="btn btn-ghost" onClick={resetForm} style={{ minHeight: 46, borderRadius: 14 }}>
                 {a.cancelEdit}
               </button>
             ) : null}
@@ -430,64 +408,53 @@ export function TaskManager() {
         </form>
       </section>
 
-      <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>{a.taskTemplates}</h2>
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.75rem", alignItems: "center" }}>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setSelectedIds(tasks.map((task) => task.id))}
-            disabled={tasks.length === 0}
-          >
-            {a.selectAll}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            style={{ background: "#f1f5f9", color: "#475569" }}
-            onClick={() => setSelectedIds([])}
-            disabled={selectedIds.length === 0}
-          >
-            {a.clearSelection}
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={deleteSelected}
-            disabled={selectedIds.length === 0}
-          >
-            {a.deleteSelected}
-          </button>
-          <span style={{ color: "var(--muted)", fontSize: "0.9rem" }}>
-            {selectedIds.length} {a.selectedCount}
-          </span>
+      {/* Task List */}
+      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
+          <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>
+            {a.taskTemplates}
+            <span style={{ fontWeight: 500, color: "var(--muted)", fontSize: "0.85rem", marginLeft: "0.4rem" }}>
+              ({tasks.length})
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
+            <button type="button" className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "0.35rem 0.65rem" }} onClick={() => setSelectedIds(tasks.map((t) => t.id))} disabled={tasks.length === 0}>
+              {a.selectAll}
+            </button>
+            <button type="button" className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "0.35rem 0.65rem" }} onClick={() => setSelectedIds([])} disabled={selectedIds.length === 0}>
+              {a.clearSelection}
+            </button>
+            {selectedIds.length > 0 ? (
+              <button type="button" className="btn btn-danger" style={{ fontSize: "0.82rem", padding: "0.35rem 0.65rem" }} onClick={deleteSelected}>
+                {a.deleteSelected} ({selectedIds.length})
+              </button>
+            ) : null}
+          </div>
         </div>
-        <div style={{ display: "grid", gap: "0.65rem" }}>
-          {tasks.map((task) => (
-            <article
+        <div className="ios-grouped">
+          {tasks.map((task, idx) => (
+            <div
               key={task.id}
+              className="ios-row"
               style={{
-                border: selectedIds.includes(task.id) ? "1px solid #3b82f6" : "1px solid var(--border)",
-                borderRadius: 12,
-                padding: "0.75rem",
-                background: selectedIds.includes(task.id) ? "#f8fbff" : "#fff",
+                borderTop: idx > 0 ? "1px solid var(--separator)" : "none",
+                background: selectedIds.includes(task.id) ? "rgba(0,122,255,0.04)" : "transparent",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.8rem", alignItems: "start" }}>
-                <div>
-                  <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.25rem" }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(task.id)}
-                      onChange={(event) => {
-                        setSelectedIds((current) =>
-                          event.target.checked ? [...current, task.id] : current.filter((id) => id !== task.id),
-                        );
-                      }}
-                    />
-                  </label>
-                  <div style={{ fontWeight: 600 }}>{task.title}</div>
-                  <div style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.55rem", flex: 1, minWidth: 0, cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(task.id)}
+                  onChange={(event) => {
+                    setSelectedIds((current) =>
+                      event.target.checked ? [...current, task.id] : current.filter((id) => id !== task.id),
+                    );
+                  }}
+                  style={{ width: 18, height: 18, accentColor: "#007aff", flexShrink: 0 }}
+                />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: "0.92rem" }}>{task.title}</div>
+                  <div style={{ color: "var(--muted)", fontSize: "0.78rem" }}>
                     {timeBlockLabel(task.timeBlock)} ·{" "}
                     {task.frequencyType === FREQUENCY_TYPE.DAILY
                       ? a.daily
@@ -495,20 +462,22 @@ export function TaskManager() {
                         ? a.selectedWeekdays
                         : `${a.oneTime}${task.oneTimeDate ? ` (${task.oneTimeDate})` : ""}`}
                   </div>
-                  {task.notes ? <div style={{ marginTop: "0.25rem", color: "var(--muted)" }}>{task.notes}</div> : null}
+                  {task.notes ? <div style={{ marginTop: "0.15rem", color: "var(--muted)", fontSize: "0.78rem" }}>{task.notes}</div> : null}
                 </div>
-                <div style={{ display: "flex", gap: "0.4rem" }}>
-                  <button className="btn btn-secondary" onClick={() => startEdit(task)}>
-                    {a.edit}
-                  </button>
-                  <button className="btn btn-danger" onClick={() => deleteTask(task.id)}>
-                    {a.delete}
-                  </button>
-                </div>
+              </label>
+              <div style={{ display: "flex", gap: "0.3rem", flexShrink: 0 }}>
+                <button className="btn btn-secondary" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem" }} onClick={() => startEdit(task)}>
+                  {a.edit}
+                </button>
+                <button className="btn btn-danger" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem" }} onClick={() => deleteTask(task.id)}>
+                  {a.delete}
+                </button>
               </div>
-            </article>
+            </div>
           ))}
-          {tasks.length === 0 ? <div style={{ color: "var(--muted)" }}>{a.noTemplates}</div> : null}
+          {tasks.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "2rem 1rem", color: "var(--muted)", fontSize: "0.92rem" }}>{a.noTemplates}</div>
+          ) : null}
         </div>
       </section>
     </div>

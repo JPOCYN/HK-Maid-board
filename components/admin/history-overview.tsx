@@ -34,30 +34,46 @@ export function HistoryOverview() {
   }, []);
 
   return (
-    <section className="card" style={{ padding: "1rem" }}>
-      <h2 style={{ marginTop: 0 }}>{a.last7Days}</h2>
-      <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>{a.historyHint}</p>
-      {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
-      <div style={{ display: "grid", gap: "0.65rem" }}>
-        {rows.map((day) => (
-          <article key={day.date} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "0.75rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.8rem", flexWrap: "wrap" }}>
-              <div>
-                <strong>{day.date}</strong>
-                <div style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
-                  {day.completed}/{day.total} {a.completedLabel} · {day.skipped} {a.skippedLabel} · {day.pending} {a.pending}
+    <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+      <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.15rem" }}>{a.last7Days}</div>
+      <p style={{ color: "var(--muted)", margin: "0 0 0.85rem", fontSize: "0.88rem" }}>{a.historyHint}</p>
+      {error ? <p style={{ color: "var(--danger)", fontSize: "0.88rem" }}>{error}</p> : null}
+      <div className="ios-grouped">
+        {rows.map((day, idx) => {
+          const pct = day.completionRate;
+          return (
+            <div
+              key={day.date}
+              className="ios-row"
+              style={{ borderTop: idx > 0 ? "1px solid var(--separator)" : "none", gap: "0.6rem" }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: "0.95rem" }}>{day.date}</div>
+                <div style={{ color: "var(--muted)", fontSize: "0.78rem" }}>
+                  {day.completed}/{day.total} {a.completedLabel} · {day.skipped} {a.skippedLabel}
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <div className="pill pill-completed">{day.completionRate}%</div>
-                <Link href={`/admin/history/${day.date}`} className="btn btn-secondary">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", flexShrink: 0 }}>
+                <span
+                  style={{
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                    fontVariantNumeric: "tabular-nums",
+                    color: pct >= 80 ? "#34c759" : pct >= 50 ? "#ff9500" : "var(--muted)",
+                  }}
+                >
+                  {pct}%
+                </span>
+                <Link href={`/admin/history/${day.date}`} className="btn btn-secondary" style={{ padding: "0.35rem 0.7rem", fontSize: "0.82rem" }}>
                   {a.viewDay}
                 </Link>
               </div>
             </div>
-          </article>
-        ))}
-        {rows.length === 0 ? <p style={{ color: "var(--muted)" }}>{a.noHistory}</p> : null}
+          );
+        })}
+        {rows.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "2rem 1rem", color: "var(--muted)", fontSize: "0.92rem" }}>{a.noHistory}</div>
+        ) : null}
       </div>
     </section>
   );

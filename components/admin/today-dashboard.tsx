@@ -46,7 +46,7 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
       const stored = window.localStorage.getItem(HOME_CODE_CACHE_KEY);
       if (stored) setCachedHomeCode(stored);
     } catch {
-      // Ignore storage errors in private mode or restricted browsers.
+      /* private mode */
     }
   }, []);
 
@@ -58,11 +58,7 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
       setData(payload);
       if (payload.homeCode) {
         setCachedHomeCode(payload.homeCode);
-        try {
-          window.localStorage.setItem(HOME_CODE_CACHE_KEY, payload.homeCode);
-        } catch {
-          // Ignore storage write failures.
-        }
+        try { window.localStorage.setItem(HOME_CODE_CACHE_KEY, payload.homeCode); } catch { /* */ }
       }
       setError(null);
     } catch {
@@ -120,11 +116,7 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
       const payload = (await response.json()) as { homeCode?: string };
       if (payload.homeCode) {
         setCachedHomeCode(payload.homeCode);
-        try {
-          window.localStorage.setItem(HOME_CODE_CACHE_KEY, payload.homeCode);
-        } catch {
-          // Ignore storage write failures.
-        }
+        try { window.localStorage.setItem(HOME_CODE_CACHE_KEY, payload.homeCode); } catch { /* */ }
       }
       await load();
     } catch {
@@ -135,74 +127,104 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
   }
 
   const displayHomeCode = data?.homeCode ?? cachedHomeCode;
+  const pct = data?.progress.completionRate ?? 0;
 
   return (
-    <div style={{ display: "grid", gap: "1rem" }}>
-      <section className="card" style={{ padding: "1rem" }}>
-        <h3 style={{ marginTop: 0, marginBottom: "0.6rem" }}>{a.quickGuideTitle}</h3>
-        <div style={{ display: "grid", gap: "0.35rem", color: "var(--muted)", fontSize: "0.95rem" }}>
-          <div>1. {a.quickGuideStep1}</div>
-          <div>2. {a.quickGuideStep2}</div>
-          <div>3. {a.quickGuideStep3}</div>
+    <div style={{ display: "grid", gap: "0.85rem" }}>
+      {/* Quick Start */}
+      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+        <div style={{ fontWeight: 700, fontSize: "1rem", marginBottom: "0.55rem", color: "#1c1c1e" }}>
+          {a.quickGuideTitle}
+        </div>
+        <div style={{ display: "grid", gap: "0.3rem" }}>
+          {[a.quickGuideStep1, a.quickGuideStep2, a.quickGuideStep3].map((step, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "#007aff",
+                  color: "#fff",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.72rem",
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+              >
+                {i + 1}
+              </span>
+              <span style={{ fontSize: "0.92rem", color: "#636366" }}>{step}</span>
+            </div>
+          ))}
         </div>
       </section>
 
+      {/* Home Code */}
       {displayHomeCode ? (
-        <section className="card" style={{ padding: "1rem" }}>
-          <h3 style={{ marginTop: 0 }}>{a.yourHomeCode}</h3>
-          <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>{a.homeCodeHint}</p>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+        <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+          <div style={{ fontWeight: 700, marginBottom: "0.15rem" }}>{a.yourHomeCode}</div>
+          <p style={{ color: "var(--muted)", margin: "0 0 0.8rem", fontSize: "0.88rem" }}>{a.homeCodeHint}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
             <code
               style={{
-                background: "#f1f5f9",
-                padding: "0.5rem 0.85rem",
-                borderRadius: 8,
-                fontSize: "1.1rem",
-                fontWeight: 700,
-                letterSpacing: "0.1em",
+                background: "rgba(0,122,255,0.06)",
+                padding: "0.55rem 1rem",
+                borderRadius: 12,
+                fontSize: "1.25rem",
+                fontWeight: 800,
+                letterSpacing: "0.12em",
+                color: "#007aff",
               }}
             >
               {displayHomeCode}
             </code>
-            <button type="button" className="btn btn-secondary" onClick={copyHomeCode}>
+            <button type="button" className="btn btn-secondary" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={copyHomeCode}>
               {copiedCode ? a.copied : a.copyUrl}
             </button>
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={regenerateHomeCode}
-              disabled={regenerating}
-            >
+            <button type="button" className="btn btn-danger" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={regenerateHomeCode} disabled={regenerating}>
               {regenerating ? a.regenerating : a.regenerateCode}
             </button>
           </div>
         </section>
       ) : null}
 
-      {(data?.boardToken ?? boardToken) ? (
-        <section className="card" style={{ padding: "1rem" }}>
-          <h3 style={{ marginTop: 0 }}>{a.boardUrl}</h3>
-          <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>
-            {a.boardUrlHint} {a.boardUrlSimpleHint}
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
-            <code style={{ background: "#f1f5f9", padding: "0.4rem 0.7rem", borderRadius: 8, fontSize: "0.9rem", wordBreak: "break-all" }}>
-              {typeof window !== "undefined"
-                ? `${window.location.origin}/board/${data?.boardToken ?? boardToken}`
-                : `/board/${data?.boardToken ?? boardToken}`}
-            </code>
-            <button type="button" className="btn btn-secondary" onClick={copyBoardUrl}>
-              {copied ? a.copied : a.copyUrl}
-            </button>
-            <button type="button" className="btn btn-danger" onClick={resetBoardUrl} disabled={resettingUrl}>
-              {resettingUrl ? a.saving : a.resetUrl}
-            </button>
+      {/* Today's Progress */}
+      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+          <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>{a.todayProgress}</div>
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: "1.2rem",
+              color: pct >= 80 ? "#34c759" : pct >= 50 ? "#ff9500" : "#8e8e93",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {pct}%
           </div>
-        </section>
-      ) : null}
-
-      <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>{a.todayProgress}</h2>
+        </div>
+        <div
+          style={{
+            height: 6,
+            borderRadius: 3,
+            background: "rgba(120,120,128,0.08)",
+            marginBottom: "0.85rem",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              borderRadius: 3,
+              width: `${pct}%`,
+              background: pct >= 80 ? "#34c759" : pct >= 50 ? "#ff9500" : "#007aff",
+              transition: "width 600ms cubic-bezier(0.22,1,0.36,1)",
+            }}
+          />
+        </div>
         <div className="kpi-grid">
           <div className="kpi-card">
             <div className="kpi-label">{a.total}</div>
@@ -210,7 +232,7 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
           </div>
           <div className="kpi-card">
             <div className="kpi-label">{a.completedLabel}</div>
-            <div className="kpi-value">{data?.progress.completed ?? 0}</div>
+            <div className="kpi-value" style={{ color: "#34c759" }}>{data?.progress.completed ?? 0}</div>
           </div>
           <div className="kpi-card">
             <div className="kpi-label">{a.pending}</div>
@@ -218,32 +240,70 @@ export function TodayDashboard({ boardToken }: { boardToken?: string }) {
           </div>
           <div className="kpi-card">
             <div className="kpi-label">{a.skippedLabel}</div>
-            <div className="kpi-value">{data?.progress.skipped ?? 0}</div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-label">{a.completion}</div>
-            <div className="kpi-value">{data?.progress.completionRate ?? 0}%</div>
+            <div className="kpi-value" style={{ color: "#ff9500" }}>{data?.progress.skipped ?? 0}</div>
           </div>
         </div>
-        {error ? <p style={{ color: "#9b1c1c", marginBottom: 0 }}>{error}</p> : null}
+        {error ? <p style={{ color: "var(--danger)", marginBottom: 0, marginTop: "0.6rem", fontSize: "0.88rem" }}>{error}</p> : null}
       </section>
 
-      <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>{a.liveTaskFeed}</h2>
-        <div style={{ display: "grid", gap: "0.65rem" }}>
+      {/* Board URL */}
+      {(data?.boardToken ?? boardToken) ? (
+        <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+          <div style={{ fontWeight: 700, marginBottom: "0.15rem" }}>{a.boardUrl}</div>
+          <p style={{ color: "var(--muted)", margin: "0 0 0.7rem", fontSize: "0.88rem" }}>
+            {a.boardUrlHint} {a.boardUrlSimpleHint}
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <code
+              style={{
+                background: "rgba(120,120,128,0.06)",
+                padding: "0.4rem 0.7rem",
+                borderRadius: 10,
+                fontSize: "0.82rem",
+                wordBreak: "break-all",
+                color: "#636366",
+              }}
+            >
+              {typeof window !== "undefined"
+                ? `${window.location.origin}/board/${data?.boardToken ?? boardToken}`
+                : `/board/${data?.boardToken ?? boardToken}`}
+            </code>
+            <button type="button" className="btn btn-secondary" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={copyBoardUrl}>
+              {copied ? a.copied : a.copyUrl}
+            </button>
+            <button type="button" className="btn btn-danger" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }} onClick={resetBoardUrl} disabled={resettingUrl}>
+              {resettingUrl ? a.saving : a.resetUrl}
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Task List */}
+      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+        <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.65rem" }}>{a.liveTaskFeed}</div>
+        <div style={{ display: "grid", gap: "0.5rem" }}>
           {(data?.tasks ?? []).map((task) => (
-            <article key={task.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "0.7rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.6rem", alignItems: "start" }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{task.title}</div>
-                  <div style={{ color: "var(--muted)", fontSize: "0.86rem" }}>{task.timeBlock.toLowerCase()}</div>
-                </div>
-                <StatusPill status={task.status} />
+            <div
+              key={task.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "0.6rem",
+                padding: "0.65rem 0.75rem",
+                background: "rgba(120,120,128,0.04)",
+                borderRadius: 12,
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 600, fontSize: "0.95rem" }}>{task.title}</div>
+                <div style={{ color: "var(--muted)", fontSize: "0.8rem" }}>{task.timeBlock.toLowerCase()}</div>
               </div>
-            </article>
+              <StatusPill status={task.status} />
+            </div>
           ))}
           {(data?.tasks?.length ?? 0) === 0 ? (
-            <div style={{ color: "var(--muted)" }}>{a.noTasksToday}</div>
+            <div style={{ color: "var(--muted)", textAlign: "center", padding: "1.5rem 0", fontSize: "0.92rem" }}>{a.noTasksToday}</div>
           ) : null}
         </div>
       </section>

@@ -18,40 +18,72 @@ export function AdminNav({ boardToken }: { boardToken?: string }) {
   ];
 
   return (
-    <header className="card" style={{ padding: "0.8rem 1rem", marginBottom: "1rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flexWrap: "wrap" }}>
-          <div style={{ marginRight: "0.6rem" }}>
-            <div style={{ fontWeight: 700 }}>{a.portalTitle}</div>
-            <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>{a.portalSubtitle}</div>
+    <header
+      style={{
+        background: "rgba(255,255,255,0.72)",
+        backdropFilter: "saturate(180%) blur(20px)",
+        WebkitBackdropFilter: "saturate(180%) blur(20px)",
+        borderRadius: 20,
+        padding: "0.75rem 1rem",
+        marginBottom: "1rem",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div style={{ marginRight: "0.5rem" }}>
+            <div style={{ fontWeight: 700, fontSize: "1.05rem", color: "#1c1c1e" }}>{a.portalTitle}</div>
           </div>
-          {links.map((link) => {
-            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="btn"
-                style={{
-                  padding: "0.45rem 0.8rem",
-                  background: active ? "#dce7ff" : "#f3f6fc",
-                  color: active ? "#1d3b82" : "#314259",
-                }}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+
+          <div
+            style={{
+              display: "inline-flex",
+              background: "rgba(120,120,128,0.08)",
+              borderRadius: 10,
+              padding: 3,
+              gap: 2,
+            }}
+          >
+            {links.map((link) => {
+              const active = pathname === link.href || (link.href !== "/admin" && pathname.startsWith(`${link.href}/`));
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  style={{
+                    padding: "0.42rem 0.85rem",
+                    borderRadius: 8,
+                    fontSize: "0.88rem",
+                    fontWeight: 600,
+                    color: active ? "#007aff" : "#636366",
+                    background: active ? "#ffffff" : "transparent",
+                    boxShadow: active ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                    transition: "all 200ms ease",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+
           <Link
             href={boardToken ? `/board/${boardToken}` : "/enter"}
             className="btn"
-            style={{ padding: "0.45rem 0.8rem", background: "#ecfdf5", color: "#166534" }}
+            style={{
+              padding: "0.42rem 0.85rem",
+              background: "rgba(52,199,89,0.1)",
+              color: "#248a3d",
+              fontSize: "0.88rem",
+            }}
           >
             {a.openBoard}
           </Link>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <LanguageSwitcher />
+        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <LanguageSwitcher compact />
           <LogoutButton />
         </div>
       </div>

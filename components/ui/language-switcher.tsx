@@ -9,14 +9,11 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
     <button
       type="button"
       onClick={() => setLocale(locale === "en" ? "zh-HK" : "en")}
-      className="btn"
+      className="btn btn-ghost"
       style={{
-        padding: compact ? "0.4rem 0.65rem" : "0.45rem 0.8rem",
-        background: "#f1f5f9",
-        color: "#334155",
-        fontSize: compact ? "0.85rem" : "0.95rem",
-        fontWeight: 600,
-        borderRadius: compact ? 8 : 10,
+        padding: compact ? "0.35rem 0.6rem" : "0.45rem 0.8rem",
+        fontSize: compact ? "0.82rem" : "0.92rem",
+        borderRadius: 980,
       }}
     >
       {locale === "en" ? t.common.zhHK : t.common.en}

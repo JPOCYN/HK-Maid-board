@@ -44,41 +44,61 @@ export function HistoryDay({ date }: { date: string }) {
     void load();
   }, [date]);
 
+  const pct = data?.totals.completionRate ?? 0;
+
   return (
-    <section className="card" style={{ padding: "1rem" }}>
-      <h2 style={{ marginTop: 0 }}>{a.detailsFor} {date}</h2>
-      <p style={{ color: "var(--muted)", marginTop: "-0.25rem" }}>{a.historyDayHint}</p>
-      {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
-      <div className="kpi-grid">
-        <div className="kpi-card">
-          <div className="kpi-label">{a.total}</div>
-          <div className="kpi-value">{data?.totals.total ?? 0}</div>
+    <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+      <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.15rem" }}>{a.detailsFor} {date}</div>
+      <p style={{ color: "var(--muted)", margin: "0 0 0.85rem", fontSize: "0.88rem" }}>{a.historyDayHint}</p>
+      {error ? <p style={{ color: "var(--danger)", fontSize: "0.88rem" }}>{error}</p> : null}
+
+      <div style={{ display: "flex", gap: "0.65rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+        <div className="kpi-grid" style={{ flex: 1 }}>
+          <div className="kpi-card">
+            <div className="kpi-label">{a.total}</div>
+            <div className="kpi-value">{data?.totals.total ?? 0}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">{a.completedLabel}</div>
+            <div className="kpi-value" style={{ color: "#34c759" }}>{data?.totals.completed ?? 0}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">{a.pending}</div>
+            <div className="kpi-value">{data?.totals.pending ?? 0}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">{a.skippedLabel}</div>
+            <div className="kpi-value" style={{ color: "#ff9500" }}>{data?.totals.skipped ?? 0}</div>
+          </div>
         </div>
-        <div className="kpi-card">
-          <div className="kpi-label">{a.completedLabel}</div>
-          <div className="kpi-value">{data?.totals.completed ?? 0}</div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-label">{a.pending}</div>
-          <div className="kpi-value">{data?.totals.pending ?? 0}</div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-label">{a.skippedLabel}</div>
-          <div className="kpi-value">{data?.totals.skipped ?? 0}</div>
+        <div
+          style={{
+            fontWeight: 800,
+            fontSize: "1.6rem",
+            fontVariantNumeric: "tabular-nums",
+            color: pct >= 80 ? "#34c759" : pct >= 50 ? "#ff9500" : "var(--muted)",
+            textAlign: "center",
+            minWidth: 60,
+          }}
+        >
+          {pct}%
         </div>
       </div>
-      <div style={{ display: "grid", gap: "0.65rem", marginTop: "1rem" }}>
-        {(data?.tasks ?? []).map((task) => (
-          <article key={task.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "0.75rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.7rem", alignItems: "start" }}>
-              <div>
-                <div style={{ fontWeight: 600 }}>{task.title}</div>
-                <div style={{ color: "var(--muted)", fontSize: "0.88rem" }}>{task.timeBlock.toLowerCase()}</div>
-                {task.notes ? <div style={{ marginTop: "0.25rem", color: "var(--muted)" }}>{task.notes}</div> : null}
-              </div>
-              <StatusPill status={task.status} />
+
+      <div className="ios-grouped">
+        {(data?.tasks ?? []).map((task, idx) => (
+          <div
+            key={task.id}
+            className="ios-row"
+            style={{ borderTop: idx > 0 ? "1px solid var(--separator)" : "none" }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 600, fontSize: "0.92rem" }}>{task.title}</div>
+              <div style={{ color: "var(--muted)", fontSize: "0.78rem" }}>{task.timeBlock.toLowerCase()}</div>
+              {task.notes ? <div style={{ marginTop: "0.1rem", color: "var(--muted)", fontSize: "0.78rem" }}>{task.notes}</div> : null}
             </div>
-          </article>
+            <StatusPill status={task.status} />
+          </div>
         ))}
       </div>
     </section>

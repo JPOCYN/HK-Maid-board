@@ -27,27 +27,33 @@ export function LoginForm() {
       });
       const payload = await response.json();
       if (!response.ok) {
-        setError(payload.error ?? "Login failed.");
+        setError(payload.error ?? a.loginError);
         return;
       }
       router.replace("/admin");
       router.refresh();
     } catch {
-      setError("Unable to connect. Please check network.");
+      setError(a.loginError);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="card" style={{ padding: "1.4rem" }}>
-      <h1 style={{ marginTop: 0 }}>{a.loginTitle}</h1>
-      <p style={{ color: "var(--muted)", marginTop: "-0.2rem" }}>{a.loginSubtitle}</p>
+    <form
+      onSubmit={onSubmit}
+      className="card"
+      style={{ padding: "2rem 1.6rem", animation: "fadeInUp 500ms cubic-bezier(0.22,1,0.36,1) both" }}
+    >
+      <h1 style={{ marginTop: 0, fontSize: "1.5rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+        {a.loginTitle}
+      </h1>
+      <p style={{ color: "var(--muted)", marginTop: "-0.15rem", marginBottom: "1.4rem", fontSize: "0.95rem" }}>
+        {a.loginSubtitle}
+      </p>
 
-      <div style={{ marginBottom: "0.85rem" }}>
-        <label className="label" htmlFor="email">
-          {a.email}
-        </label>
+      <div style={{ marginBottom: "1rem" }}>
+        <label className="label" htmlFor="email">{a.email}</label>
         <input
           id="email"
           className="input"
@@ -59,10 +65,8 @@ export function LoginForm() {
         />
       </div>
 
-      <div style={{ marginBottom: "0.85rem" }}>
-        <label className="label" htmlFor="password">
-          {a.password}
-        </label>
+      <div style={{ marginBottom: "1rem" }}>
+        <label className="label" htmlFor="password">{a.password}</label>
         <input
           id="password"
           className="input"
@@ -75,14 +79,22 @@ export function LoginForm() {
         />
       </div>
 
-      {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
-      <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: "100%" }}>
+      {error ? (
+        <p style={{ color: "var(--danger)", fontSize: "0.9rem", margin: "0 0 0.8rem" }}>{error}</p>
+      ) : null}
+
+      <button
+        className="btn btn-primary"
+        type="submit"
+        disabled={loading}
+        style={{ width: "100%", minHeight: 48, fontSize: "1rem", borderRadius: 14 }}
+      >
         {loading ? a.signingIn : a.signIn}
       </button>
 
-      <p style={{ textAlign: "center", marginBottom: 0, marginTop: "1rem", color: "var(--muted)" }}>
+      <p style={{ textAlign: "center", marginBottom: 0, marginTop: "1.2rem", color: "var(--muted)", fontSize: "0.92rem" }}>
         {a.noAccount}{" "}
-        <Link href="/admin/signup" style={{ color: "#1d3b82", fontWeight: 600 }}>
+        <Link href="/admin/signup" style={{ color: "var(--primary)", fontWeight: 600 }}>
           {a.signUp}
         </Link>
       </p>

@@ -75,25 +75,54 @@ export function HomeCodeEntry() {
 
   if (autoLoading) {
     return (
-      <main className="container" style={{ maxWidth: 520, padding: "5rem 0", textAlign: "center" }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
-          <LanguageSwitcher compact />
-        </div>
-        <div className="card" style={{ padding: "2rem" }}>
-          <h1 style={{ marginTop: 0 }}>{e.autoOpening}</h1>
+      <main style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "2rem" }}>
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              border: "3px solid rgba(120,120,128,0.12)",
+              borderTopColor: "#007aff",
+              borderRadius: "50%",
+              animation: "spin 800ms linear infinite",
+              margin: "0 auto 1rem",
+            }}
+          />
+          <div style={{ fontWeight: 600, color: "var(--muted)" }}>{e.autoOpening}</div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="container" style={{ maxWidth: 520, padding: "5rem 0" }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
+    <main
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100dvh",
+        padding: "2rem",
+      }}
+    >
+      <div style={{ position: "absolute", top: "1rem", right: "1.5rem" }}>
         <LanguageSwitcher compact />
       </div>
-      <form className="card" style={{ padding: "2rem" }} onSubmit={onSubmit}>
-        <h1 style={{ marginTop: 0, marginBottom: "0.3rem" }}>{e.title}</h1>
-        <p style={{ color: "var(--muted)", marginTop: 0 }}>{e.helperHint}</p>
+
+      <form
+        className="card"
+        style={{
+          padding: "2.5rem 2rem",
+          width: "min(460px, 100%)",
+          textAlign: "center",
+          animation: "fadeInUp 500ms cubic-bezier(0.22,1,0.36,1) both",
+        }}
+        onSubmit={onSubmit}
+      >
+        <h1 style={{ marginTop: 0, marginBottom: "0.3rem", fontSize: "1.5rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+          {e.title}
+        </h1>
+        <p style={{ color: "var(--muted)", marginTop: 0, marginBottom: "1.5rem", fontSize: "0.92rem" }}>{e.helperHint}</p>
 
         <input
           className="input"
@@ -105,23 +134,24 @@ export function HomeCodeEntry() {
           maxLength={7}
           onChange={(event) => setCode(formatHomeCodeInput(event.target.value))}
           style={{
-            marginTop: "0.8rem",
-            fontSize: "1.6rem",
-            letterSpacing: "0.12em",
+            fontSize: "1.8rem",
+            letterSpacing: "0.14em",
             textTransform: "uppercase",
             textAlign: "center",
-            padding: "0.95rem 1rem",
-            fontWeight: 700,
+            padding: "1rem",
+            fontWeight: 800,
+            borderRadius: 16,
+            color: "#007aff",
           }}
         />
 
-        {error ? <p style={{ color: "#b91c1c", marginBottom: 0 }}>{error}</p> : null}
+        {error ? <p style={{ color: "var(--danger)", marginBottom: 0, fontSize: "0.88rem" }}>{error}</p> : null}
 
         <button
           type="submit"
           className="btn btn-primary"
           disabled={loading || code.length < 7}
-          style={{ width: "100%", marginTop: "1rem", minHeight: 54, fontSize: "1.05rem" }}
+          style={{ width: "100%", marginTop: "1.2rem", minHeight: 52, fontSize: "1.05rem", borderRadius: 14 }}
         >
           {loading ? e.opening : e.submit}
         </button>
@@ -129,8 +159,8 @@ export function HomeCodeEntry() {
         {hasSavedCode ? (
           <button
             type="button"
-            className="btn btn-secondary"
-            style={{ width: "100%", marginTop: "0.6rem" }}
+            className="btn btn-ghost"
+            style={{ width: "100%", marginTop: "0.6rem", minHeight: 44 }}
             onClick={clearSavedCode}
           >
             {e.changeCode}

@@ -22,7 +22,18 @@ export function LogoutButton() {
   }
 
   return (
-    <button type="button" className="btn btn-secondary" onClick={logout} disabled={loading}>
+    <button
+      type="button"
+      className="btn"
+      onClick={logout}
+      disabled={loading}
+      style={{
+        padding: "0.42rem 0.75rem",
+        background: "rgba(255,59,48,0.08)",
+        color: "#ff3b30",
+        fontSize: "0.85rem",
+      }}
+    >
       {loading ? a.signingOut : a.signOut}
     </button>
   );

@@ -32,8 +32,8 @@ function ProgressRing({ completed, total }: { completed: number; total: number }
       <svg width="80" height="80" viewBox="0 0 80 80">
         <defs>
           <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#22c55e" />
+            <stop offset="0%" stopColor="#007aff" />
+            <stop offset="100%" stopColor="#34c759" />
           </linearGradient>
         </defs>
         <circle className="progress-ring-bg" cx="40" cy="40" r={RING_RADIUS} />
@@ -189,8 +189,8 @@ export function BoardClient({ slug }: { slug: string }) {
           <LanguageSwitcher compact />
           <button
             type="button"
-            className="btn"
-            style={{ background: "#f1f5f9", color: "#475569", padding: "0.4rem 0.7rem" }}
+            className="btn btn-ghost"
+            style={{ padding: "0.35rem 0.65rem", fontSize: "0.82rem" }}
             onClick={changeCode}
           >
             {e.changeCode}

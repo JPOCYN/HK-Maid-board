@@ -4,11 +4,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "MaidBoard — 工人 Checklist | 家務清單 App | 香港家庭適用",
-    template: "%s | MaidBoard",
+    default: "HK MaidBoard — 工人 Checklist | 家務清單 App | 香港家庭適用",
+    template: "%s | HK MaidBoard",
   },
   description:
-    "MaidBoard 係香港家庭專用嘅工人工作表 App。輕鬆建立家務 checklist、管理工人每日工作，用 iPad 做共用看板，免費使用。",
+    "HK MaidBoard 係香港家庭專用嘅工人工作表 App。輕鬆建立家務 checklist、管理工人每日工作，用 iPad 做共用看板，免費使用。",
   keywords: [
     "工人 checklist",
     "家務清單",
@@ -25,9 +25,12 @@ export const metadata: Metadata = {
     "helper daily tasks",
     "hong kong helper app",
   ],
-  authors: [{ name: "MaidBoard" }],
-  creator: "MaidBoard",
-  metadataBase: new URL("https://hk-maid-board.vercel.app"),
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>",
+  },
+  authors: [{ name: "HK MaidBoard" }],
+  creator: "HK MaidBoard",
+  metadataBase: new URL("https://hkmaidboard.com"),
   alternates: {
     canonical: "/",
     languages: {
@@ -36,18 +39,18 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "MaidBoard — 工人 Checklist | 家務清單 App",
+    title: "HK MaidBoard — 工人 Checklist | 家務清單 App",
     description:
       "香港家庭專用嘅工人工作表。輕鬆管理工人每日工作、家務 checklist，免費即用。",
-    url: "https://hk-maid-board.vercel.app",
-    siteName: "MaidBoard",
+    url: "https://hkmaidboard.com",
+    siteName: "HK MaidBoard",
     locale: "zh_HK",
     alternateLocale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MaidBoard — 工人 Checklist | 家務清單 App",
+    title: "HK MaidBoard — 工人 Checklist | 家務清單 App",
     description:
       "香港家庭專用嘅工人工作表。輕鬆管理工人每日工作、家務 checklist，免費即用。",
   },
@@ -67,7 +70,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              name: "MaidBoard",
+              name: "HK MaidBoard",
+              url: "https://hkmaidboard.com",
               applicationCategory: "LifestyleApplication",
               operatingSystem: "Web",
               offers: {
@@ -82,6 +86,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 { "@type": "Language", name: "Chinese (Traditional, Hong Kong)" },
                 { "@type": "Language", name: "English" },
               ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                email: "info@hkmaidboard.com",
+                contactType: "customer support",
+              },
             }),
           }}
         />

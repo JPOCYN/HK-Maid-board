@@ -4,9 +4,9 @@ import { LandingClient } from "@/components/landing/landing-client";
 import "./landing.css";
 
 export const metadata: Metadata = {
-  title: "MaidBoard — 工人 Checklist | 家務清單 | 工人每日工作 App | 香港",
+  title: "HK MaidBoard — 工人 Checklist | 家務清單 | 工人每日工作 App | 香港",
   description:
-    "MaidBoard 係免費嘅工人 checklist app，專為香港家庭而設。輕鬆建立家務清單、工人每日工作安排、helper 工作表。喺 iPad 顯示任務看板，管理家務 checklist 從未如此簡單。",
+    "HK MaidBoard 係免費嘅工人 checklist app，專為香港家庭而設。輕鬆建立家務清單、工人每日工作安排、helper 工作表。喺 iPad 顯示任務看板，管理家務 checklist 從未如此簡單。",
   keywords: [
     "工人 checklist",
     "家務清單",

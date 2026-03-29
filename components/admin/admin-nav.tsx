@@ -32,7 +32,7 @@ export function AdminNav({ boardToken }: { boardToken?: string }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
           <div style={{ marginRight: "0.5rem" }}>
-            <div style={{ fontWeight: 700, fontSize: "1.05rem", color: "#1c1c1e" }}>{a.portalTitle}</div>
+            <div style={{ fontWeight: 700, fontSize: "1.05rem", color: "#1c1c1e" }}>{t.common.appEmoji} {a.portalTitle}</div>
           </div>
 
           <div

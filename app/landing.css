@@ -733,6 +733,66 @@
   font-weight: 500;
 }
 
+/* ── House Rules feature highlight ── */
+
+.landing-rules-feature {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.landing-rules-feature-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f5f0ff, #eef6ff);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+}
+
+.landing-rules-feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.landing-rules-feature h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  color: #1c1c1e;
+  letter-spacing: -0.02em;
+}
+
+.landing-rules-feature p {
+  font-size: 0.95rem;
+  color: #636366;
+  line-height: 1.6;
+  margin: 0 0 1.2rem;
+}
+
+.landing-rules-bullets {
+  text-align: left;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.landing-rules-bullets li {
+  font-size: 0.92rem;
+  color: #3a3a3c;
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.landing-rules-bullets li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: #34c759;
+  font-weight: 700;
+}
+
 /* ── Footer ── */
 
 .landing-footer {

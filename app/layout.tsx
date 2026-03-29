@@ -4,11 +4,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "HK MaidBoard — 工人 Checklist | 家務清單 App | 香港家庭適用",
+    default: "HK MaidBoard — 工人 Checklist | 家務清單 App | 外傭工作表 | 香港家庭適用",
     template: "%s | HK MaidBoard",
   },
   description:
-    "HK MaidBoard 係香港家庭專用嘅工人工作表 App。輕鬆建立家務 checklist、管理工人每日工作，用 iPad 做共用看板，免費使用。",
+    "HK MaidBoard 係香港家庭專用嘅家務管理工具。輕鬆建立工人每日工作表、家務 checklist、外傭家規，用 iPad 做共用看板，免費使用。2026年最適合香港家庭嘅家務分工 App。",
   keywords: [
     "工人 checklist",
     "家務清單",
@@ -19,11 +19,24 @@ export const metadata: Metadata = {
     "工人 app",
     "家務助理",
     "香港工人",
+    "家務分工 app",
+    "家務管理 工具",
+    "家庭任務清單",
+    "家務安排 表",
+    "家務管理 系統",
+    "工人 工作安排",
+    "外傭 工作表",
+    "工人 每日工作表",
+    "外傭家規",
+    "helper house rules hk",
+    "新工人 orientation",
+    "外傭合約 2026",
     "domestic helper checklist",
     "maid task board",
     "household chores app",
     "helper daily tasks",
     "hong kong helper app",
+    "hong kong maid app",
   ],
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>",
@@ -39,9 +52,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "HK MaidBoard — 工人 Checklist | 家務清單 App",
+    title: "HK MaidBoard — 工人 Checklist | 家務清單 | 外傭工作表 App",
     description:
-      "香港家庭專用嘅工人工作表。輕鬆管理工人每日工作、家務 checklist，免費即用。",
+      "香港家庭專用嘅家務管理工具。管理工人每日工作表、外傭家規、家務 checklist，免費即用。",
     url: "https://hkmaidboard.com",
     siteName: "HK MaidBoard",
     locale: "zh_HK",
@@ -50,9 +63,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "HK MaidBoard — 工人 Checklist | 家務清單 App",
+    title: "HK MaidBoard — 工人 Checklist | 家務清單 | 外傭工作表 App",
     description:
-      "香港家庭專用嘅工人工作表。輕鬆管理工人每日工作、家務 checklist，免費即用。",
+      "香港家庭專用嘅家務管理工具。管理工人每日工作表、外傭家規、家務 checklist，免費即用。",
   },
   robots: {
     index: true,
@@ -80,7 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 priceCurrency: "HKD",
               },
               description:
-                "香港家庭專用嘅工人 checklist App。管理家務清單、工人每日工作、helper 工作表，免費使用。",
+                "香港家庭專用嘅家務管理工具。管理工人每日工作表、外傭家規、家務 checklist、家庭任務清單，免費使用。適合新工人 orientation。",
               inLanguage: ["zh-HK", "en"],
               availableLanguage: [
                 { "@type": "Language", name: "Chinese (Traditional, Hong Kong)" },

@@ -49,10 +49,10 @@ export function HouseRulesEditor() {
   }
 
   const templates = [
-    { label: a.rulesTemplateGeneral, content: a.rulesTemplateGeneralContent, emoji: "\uD83C\uDFE0" },
-    { label: a.rulesTemplateKitchen, content: a.rulesTemplateKitchenContent, emoji: "\uD83C\uDF73" },
+    { label: a.rulesTemplateConduct, content: a.rulesTemplateConductContent, emoji: "\uD83D\uDCCB" },
+    { label: a.rulesTemplateHousehold, content: a.rulesTemplateHouseholdContent, emoji: "\uD83C\uDFE0" },
     { label: a.rulesTemplateBaby, content: a.rulesTemplateBabyContent, emoji: "\uD83D\uDC76" },
-    { label: a.rulesTemplateLaundry, content: a.rulesTemplateLaundryContent, emoji: "\uD83E\uDDFA" },
+    { label: a.rulesTemplatePrivacy, content: a.rulesTemplatePrivacyContent, emoji: "\uD83D\uDD12" },
     { label: a.rulesTemplateSafety, content: a.rulesTemplateSafetyContent, emoji: "\uD83D\uDEE1\uFE0F" },
   ];
 

@@ -217,6 +217,20 @@ export function LandingClient() {
         </div>
       </section>
 
+      {/* House Rules feature highlight */}
+      <section className="landing-rules-feature">
+        <div className="landing-rules-feature-inner">
+          <div className="landing-rules-feature-icon">{"\uD83D\uDCDC"}</div>
+          <h2>{l.rulesFeatureTitle}</h2>
+          <p>{l.rulesFeatureSub}</p>
+          <ul className="landing-rules-bullets">
+            {l.rulesFeatureBullets.map((b, i) => (
+              <li key={i}>{b}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* SEO keyword section */}
       <section className="landing-seo">
         <h2>{l.seoTitle}</h2>

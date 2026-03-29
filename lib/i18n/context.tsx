@@ -6,14 +6,14 @@ import { dictionaries, type Dictionary, type Locale } from "./dictionaries";
 const STORAGE_KEY = "maidboard_lang";
 
 function getStoredLocale(): Locale {
-  if (typeof window === "undefined") return "en";
+  if (typeof window === "undefined") return "zh-HK";
   try {
     const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
     if (saved && saved in dictionaries) return saved;
   } catch {
     /* ignore */
   }
-  return "en";
+  return "zh-HK";
 }
 
 type LanguageContextValue = {
@@ -23,9 +23,9 @@ type LanguageContextValue = {
 };
 
 const LanguageContext = createContext<LanguageContextValue>({
-  locale: "en",
+  locale: "zh-HK",
   setLocale: () => {},
-  t: dictionaries.en,
+  t: dictionaries["zh-HK"],
 });
 
 let listeners: Array<() => void> = [];
@@ -40,7 +40,7 @@ function getSnapshot(): Locale {
 }
 
 function getServerSnapshot(): Locale {
-  return "en";
+  return "zh-HK";
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {

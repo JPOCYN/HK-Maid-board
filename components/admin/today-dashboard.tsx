@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { StatusPill } from "@/components/ui/status-pill";
+import { useTranslation } from "@/lib/i18n/context";
 import { TaskStatus, TimeBlock } from "@/lib/task-constants";
 
 type Task = {
@@ -25,9 +26,12 @@ type Response = {
   tasks: Task[];
 };
 
-export function TodayDashboard() {
+export function TodayDashboard({ boardSlug }: { boardSlug?: string }) {
+  const { t } = useTranslation();
+  const a = t.admin;
   const [data, setData] = useState<Response | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -47,29 +51,52 @@ export function TodayDashboard() {
     return () => clearInterval(timer);
   }, [load]);
 
+  function copyBoardUrl() {
+    const url = `${window.location.origin}/board/${boardSlug}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   return (
     <div style={{ display: "grid", gap: "1rem" }}>
+      {boardSlug ? (
+        <section className="card" style={{ padding: "1rem" }}>
+          <h3 style={{ marginTop: 0 }}>{a.boardUrl}</h3>
+          <p style={{ color: "var(--muted)", marginTop: "-0.2rem", fontSize: "0.9rem" }}>{a.boardUrlHint}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+            <code style={{ background: "#f1f5f9", padding: "0.4rem 0.7rem", borderRadius: 8, fontSize: "0.9rem", wordBreak: "break-all" }}>
+              {typeof window !== "undefined" ? `${window.location.origin}/board/${boardSlug}` : `/board/${boardSlug}`}
+            </code>
+            <button type="button" className="btn btn-secondary" onClick={copyBoardUrl}>
+              {copied ? a.copied : a.copyUrl}
+            </button>
+          </div>
+        </section>
+      ) : null}
+
       <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>Today&apos;s Progress</h2>
+        <h2 style={{ marginTop: 0 }}>{a.todayProgress}</h2>
         <div className="kpi-grid">
           <div className="kpi-card">
-            <div className="kpi-label">Total</div>
+            <div className="kpi-label">{a.total}</div>
             <div className="kpi-value">{data?.progress.total ?? 0}</div>
           </div>
           <div className="kpi-card">
-            <div className="kpi-label">Completed</div>
+            <div className="kpi-label">{a.completedLabel}</div>
             <div className="kpi-value">{data?.progress.completed ?? 0}</div>
           </div>
           <div className="kpi-card">
-            <div className="kpi-label">Pending</div>
+            <div className="kpi-label">{a.pending}</div>
             <div className="kpi-value">{data?.progress.pending ?? 0}</div>
           </div>
           <div className="kpi-card">
-            <div className="kpi-label">Skipped</div>
+            <div className="kpi-label">{a.skippedLabel}</div>
             <div className="kpi-value">{data?.progress.skipped ?? 0}</div>
           </div>
           <div className="kpi-card">
-            <div className="kpi-label">Completion</div>
+            <div className="kpi-label">{a.completion}</div>
             <div className="kpi-value">{data?.progress.completionRate ?? 0}%</div>
           </div>
         </div>
@@ -77,7 +104,7 @@ export function TodayDashboard() {
       </section>
 
       <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>Live Task Feed</h2>
+        <h2 style={{ marginTop: 0 }}>{a.liveTaskFeed}</h2>
         <div style={{ display: "grid", gap: "0.65rem" }}>
           {(data?.tasks ?? []).map((task) => (
             <article key={task.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "0.7rem" }}>
@@ -91,7 +118,7 @@ export function TodayDashboard() {
             </article>
           ))}
           {(data?.tasks?.length ?? 0) === 0 ? (
-            <div style={{ color: "var(--muted)" }}>No tasks generated for today.</div>
+            <div style={{ color: "var(--muted)" }}>{a.noTasksToday}</div>
           ) : null}
         </div>
       </section>

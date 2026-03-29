@@ -1,14 +1,17 @@
 import { AdminNav } from "@/components/admin/admin-nav";
 import { TodayDashboard } from "@/components/admin/today-dashboard";
 import { requireAdminPageSession } from "@/lib/guards";
+import { LanguageProvider } from "@/lib/i18n/context";
 
 export default async function AdminDashboardPage() {
-  await requireAdminPageSession();
+  const session = await requireAdminPageSession();
 
   return (
-    <main className="container" style={{ padding: "1rem 0 2rem" }}>
-      <AdminNav />
-      <TodayDashboard />
-    </main>
+    <LanguageProvider>
+      <main className="container" style={{ padding: "1rem 0 2rem" }}>
+        <AdminNav />
+        <TodayDashboard boardSlug={session.householdSlug} />
+      </main>
+    </LanguageProvider>
   );
 }

@@ -1,10 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 
 export function LoginForm() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const a = t.admin;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,12 +41,12 @@ export function LoginForm() {
 
   return (
     <form onSubmit={onSubmit} className="card" style={{ padding: "1.4rem" }}>
-      <h1 style={{ marginTop: 0 }}>Admin Login</h1>
-      <p style={{ color: "var(--muted)", marginTop: "-0.2rem" }}>Secure access for household owner only.</p>
+      <h1 style={{ marginTop: 0 }}>{a.loginTitle}</h1>
+      <p style={{ color: "var(--muted)", marginTop: "-0.2rem" }}>{a.loginSubtitle}</p>
 
       <div style={{ marginBottom: "0.85rem" }}>
         <label className="label" htmlFor="email">
-          Email
+          {a.email}
         </label>
         <input
           id="email"
@@ -57,7 +61,7 @@ export function LoginForm() {
 
       <div style={{ marginBottom: "0.85rem" }}>
         <label className="label" htmlFor="password">
-          Password
+          {a.password}
         </label>
         <input
           id="password"
@@ -73,8 +77,15 @@ export function LoginForm() {
 
       {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
       <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: "100%" }}>
-        {loading ? "Signing in..." : "Sign in"}
+        {loading ? a.signingIn : a.signIn}
       </button>
+
+      <p style={{ textAlign: "center", marginBottom: 0, marginTop: "1rem", color: "var(--muted)" }}>
+        {a.noAccount}{" "}
+        <Link href="/admin/signup" style={{ color: "#1d3b82", fontWeight: 600 }}>
+          {a.signUp}
+        </Link>
+      </p>
     </form>
   );
 }

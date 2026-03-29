@@ -6,6 +6,13 @@ export const loginSchema = z.object({
   password: z.string().min(8),
 });
 
+export const signupSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.email().transform((value) => value.toLowerCase()),
+  password: z.string().min(8).max(100),
+  householdName: z.string().trim().min(1).max(100),
+});
+
 export const taskTemplateSchema = z.object({
   title: z.string().trim().min(1).max(120),
   notes: z.string().trim().max(500).optional().nullable(),

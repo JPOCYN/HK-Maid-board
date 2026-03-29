@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { StatusPill } from "@/components/ui/status-pill";
+import { useTranslation } from "@/lib/i18n/context";
 import { TaskStatus } from "@/lib/task-constants";
 
 type Detail = {
@@ -24,6 +25,8 @@ type Detail = {
 };
 
 export function HistoryDay({ date }: { date: string }) {
+  const { t } = useTranslation();
+  const a = t.admin;
   const [data, setData] = useState<Detail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,23 +46,23 @@ export function HistoryDay({ date }: { date: string }) {
 
   return (
     <section className="card" style={{ padding: "1rem" }}>
-      <h2 style={{ marginTop: 0 }}>Details for {date}</h2>
+      <h2 style={{ marginTop: 0 }}>{a.detailsFor} {date}</h2>
       {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
       <div className="kpi-grid">
         <div className="kpi-card">
-          <div className="kpi-label">Total</div>
+          <div className="kpi-label">{a.total}</div>
           <div className="kpi-value">{data?.totals.total ?? 0}</div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-label">Completed</div>
+          <div className="kpi-label">{a.completedLabel}</div>
           <div className="kpi-value">{data?.totals.completed ?? 0}</div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-label">Pending</div>
+          <div className="kpi-label">{a.pending}</div>
           <div className="kpi-value">{data?.totals.pending ?? 0}</div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-label">Skipped</div>
+          <div className="kpi-label">{a.skippedLabel}</div>
           <div className="kpi-value">{data?.totals.skipped ?? 0}</div>
         </div>
       </div>

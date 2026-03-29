@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/lib/i18n/context";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { TASK_STATUS, TaskStatus } from "@/lib/task-constants";
 
 type Task = {
@@ -14,54 +16,17 @@ type Task = {
 
 type BoardPayload = {
   household: string;
-  progress: {
-    total: number;
-    completed: number;
-    skipped: number;
-    pending: number;
-    completionRate: number;
-  };
+  progress: { total: number; completed: number; skipped: number; pending: number; completionRate: number };
   groups: Record<"MORNING" | "AFTERNOON" | "EVENING", Task[]>;
 };
 
 const BLOCKS = ["MORNING", "AFTERNOON", "EVENING"] as const;
-
-const blockMeta = {
-  MORNING: { label: "Morning", icon: "\u2600\uFE0F", cssIcon: "block-icon-morning" },
-  AFTERNOON: { label: "Afternoon", icon: "\u26C5", cssIcon: "block-icon-afternoon" },
-  EVENING: { label: "Evening", icon: "\uD83C\uDF19", cssIcon: "block-icon-evening" },
-};
-
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
-
-function formatDate(): string {
-  return new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-function formatTime(): string {
-  return new Date().toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-}
-
 const RING_RADIUS = 33;
 const RING_CIRC = 2 * Math.PI * RING_RADIUS;
 
 function ProgressRing({ completed, total }: { completed: number; total: number }) {
   const pct = total > 0 ? completed / total : 0;
   const offset = RING_CIRC * (1 - pct);
-
   return (
     <div className="progress-ring-wrap">
       <svg width="80" height="80" viewBox="0 0 80 80">
@@ -72,94 +37,53 @@ function ProgressRing({ completed, total }: { completed: number; total: number }
           </linearGradient>
         </defs>
         <circle className="progress-ring-bg" cx="40" cy="40" r={RING_RADIUS} />
-        <circle
-          className="progress-ring-fill"
-          cx="40"
-          cy="40"
-          r={RING_RADIUS}
-          strokeDasharray={RING_CIRC}
-          strokeDashoffset={offset}
-        />
+        <circle className="progress-ring-fill" cx="40" cy="40" r={RING_RADIUS} strokeDasharray={RING_CIRC} strokeDashoffset={offset} />
       </svg>
       <div className="progress-ring-text">
-        <span className="progress-ring-number">
-          {completed}/{total}
-        </span>
-        <span className="progress-ring-label">done</span>
+        <span className="progress-ring-number">{completed}/{total}</span>
+        <span className="progress-ring-label">{"\u2713"}</span>
       </div>
     </div>
   );
 }
 
-function TaskBadge({ status }: { status: TaskStatus }) {
-  const map: Record<TaskStatus, { label: string; cls: string }> = {
-    PENDING: { label: "To do", cls: "task-badge task-badge-pending" },
-    COMPLETED: { label: "\u2713 Done", cls: "task-badge task-badge-completed" },
-    SKIPPED: { label: "Skipped", cls: "task-badge task-badge-skipped" },
-  };
-  const entry = map[status];
-  return <span className={entry.cls}>{entry.label}</span>;
-}
-
-function TaskCard({
-  task,
-  busy,
-  onUpdate,
-}: {
-  task: Task;
-  busy: boolean;
-  onUpdate: (id: string, status: TaskStatus) => void;
-}) {
+function TaskCard({ task, busy, onUpdate }: { task: Task; busy: boolean; onUpdate: (id: string, s: TaskStatus) => void }) {
+  const { t } = useTranslation();
+  const b = t.board;
   const isDone = task.status === TASK_STATUS.COMPLETED;
   const isSkipped = task.status === TASK_STATUS.SKIPPED;
   const isPending = task.status === TASK_STATUS.PENDING;
+  const cls = ["task-card", isDone && "task-card-done", isSkipped && "task-card-skipped"].filter(Boolean).join(" ");
 
-  const cardClass = [
-    "task-card",
-    isDone && "task-card-done",
-    isSkipped && "task-card-skipped",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const badgeMap: Record<TaskStatus, { label: string; cls: string }> = {
+    PENDING: { label: b.todo, cls: "task-badge task-badge-pending" },
+    COMPLETED: { label: b.completed, cls: "task-badge task-badge-completed" },
+    SKIPPED: { label: b.skipped, cls: "task-badge task-badge-skipped" },
+  };
+  const badge = badgeMap[task.status];
 
   return (
-    <div className={cardClass}>
+    <div className={cls}>
       <div className="task-top-row">
         <div>
           <div className="task-title">{task.title}</div>
           {task.notes ? <div className="task-notes">{task.notes}</div> : null}
         </div>
-        <TaskBadge status={task.status} />
+        <span className={badge.cls}>{badge.label}</span>
       </div>
-
       <div className="task-actions">
         {isPending ? (
           <>
-            <button
-              className="task-btn task-btn-complete"
-              disabled={busy}
-              onClick={() => onUpdate(task.id, TASK_STATUS.COMPLETED)}
-            >
-              <span className="task-btn-icon">{"\u2713"}</span>
-              Complete
+            <button className="task-btn task-btn-complete" disabled={busy} onClick={() => onUpdate(task.id, TASK_STATUS.COMPLETED)}>
+              <span className="task-btn-icon">{"\u2713"}</span>{b.complete}
             </button>
-            <button
-              className="task-btn task-btn-skip"
-              disabled={busy}
-              onClick={() => onUpdate(task.id, TASK_STATUS.SKIPPED)}
-            >
-              <span className="task-btn-icon">{"\u279C"}</span>
-              Skip
+            <button className="task-btn task-btn-skip" disabled={busy} onClick={() => onUpdate(task.id, TASK_STATUS.SKIPPED)}>
+              <span className="task-btn-icon">{"\u279C"}</span>{b.skip}
             </button>
           </>
         ) : (
-          <button
-            className="task-btn task-btn-undo"
-            disabled={busy}
-            onClick={() => onUpdate(task.id, TASK_STATUS.PENDING)}
-          >
-            <span className="task-btn-icon">{"\u21A9"}</span>
-            Undo
+          <button className="task-btn task-btn-undo" disabled={busy} onClick={() => onUpdate(task.id, TASK_STATUS.PENDING)}>
+            <span className="task-btn-icon">{"\u21A9"}</span>{b.undo}
           </button>
         )}
       </div>
@@ -167,116 +91,96 @@ function TaskCard({
   );
 }
 
-export function BoardClient() {
+export function BoardClient({ slug }: { slug: string }) {
+  const { t } = useTranslation();
+  const b = t.board;
+
   const [data, setData] = useState<BoardPayload | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [clock, setClock] = useState(formatTime);
+  const [clock, setClock] = useState("");
   const [loaded, setLoaded] = useState(false);
   const lastFetch = useRef(0);
 
+  function formatTime() {
+    return new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  }
+  function formatDate() {
+    return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  }
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return b.greetingMorning;
+    if (hour < 17) return b.greetingAfternoon;
+    return b.greetingEvening;
+  }, [b]);
+
+  const blockMeta = useMemo(
+    () => ({
+      MORNING: { label: b.morning, icon: "\u2600\uFE0F", css: "block-icon-morning" },
+      AFTERNOON: { label: b.afternoon, icon: "\u26C5", css: "block-icon-afternoon" },
+      EVENING: { label: b.evening, icon: "\uD83C\uDF19", css: "block-icon-evening" },
+    }),
+    [b],
+  );
+
   const fetchBoard = useCallback(async () => {
     try {
-      const response = await fetch("/api/board/today", { cache: "no-store" });
-      if (!response.ok) throw new Error("Unable to load board.");
-      const payload: BoardPayload = await response.json();
-      setData(payload);
+      const res = await fetch(`/api/board/${slug}/today`, { cache: "no-store" });
+      if (!res.ok) throw new Error();
+      setData(await res.json());
       setError(null);
       lastFetch.current = Date.now();
     } catch {
-      setError("Unable to sync right now. Retrying...");
+      setError(b.syncError);
     } finally {
       setLoaded(true);
     }
-  }, []);
+  }, [slug, b.syncError]);
 
   useEffect(() => {
+    setClock(formatTime());
     void fetchBoard();
-    const dataTimer = setInterval(() => void fetchBoard(), 10000);
-    const clockTimer = setInterval(() => setClock(formatTime()), 1000);
-    return () => {
-      clearInterval(dataTimer);
-      clearInterval(clockTimer);
-    };
+    const d = setInterval(() => void fetchBoard(), 10000);
+    const c = setInterval(() => setClock(formatTime()), 1000);
+    return () => { clearInterval(d); clearInterval(c); };
   }, [fetchBoard]);
 
-  const allTasks = useMemo(() => {
-    if (!data) return [];
-    return [...data.groups.MORNING, ...data.groups.AFTERNOON, ...data.groups.EVENING];
-  }, [data]);
-
-  const allDone = useMemo(() => {
-    if (!data || data.progress.total === 0) return false;
-    return data.progress.pending === 0;
-  }, [data]);
+  const allTasks = useMemo(() => (data ? [...data.groups.MORNING, ...data.groups.AFTERNOON, ...data.groups.EVENING] : []), [data]);
+  const allDone = useMemo(() => (data && data.progress.total > 0 && data.progress.pending === 0), [data]);
 
   async function updateStatus(taskId: string, status: TaskStatus) {
     if (!data) return;
     setBusyId(taskId);
-
-    const previous = data;
-    const next = structuredClone(previous);
-    for (const block of BLOCKS) {
-      const task = next.groups[block].find((item) => item.id === taskId);
-      if (task) task.status = status;
-    }
-    const completed = BLOCKS.reduce(
-      (sum, b) => sum + next.groups[b].filter((t) => t.status === TASK_STATUS.COMPLETED).length,
-      0,
-    );
-    const skipped = BLOCKS.reduce(
-      (sum, b) => sum + next.groups[b].filter((t) => t.status === TASK_STATUS.SKIPPED).length,
-      0,
-    );
-    next.progress = {
-      ...next.progress,
-      completed,
-      skipped,
-      pending: next.progress.total - completed - skipped,
-      completionRate: next.progress.total > 0 ? Math.round((completed / next.progress.total) * 100) : 0,
-    };
+    const prev = data;
+    const next = structuredClone(prev);
+    for (const bl of BLOCKS) { const t = next.groups[bl].find((x) => x.id === taskId); if (t) t.status = status; }
+    const comp = BLOCKS.reduce((s, bl) => s + next.groups[bl].filter((x) => x.status === TASK_STATUS.COMPLETED).length, 0);
+    const skip = BLOCKS.reduce((s, bl) => s + next.groups[bl].filter((x) => x.status === TASK_STATUS.SKIPPED).length, 0);
+    next.progress = { ...next.progress, completed: comp, skipped: skip, pending: next.progress.total - comp - skip, completionRate: next.progress.total > 0 ? Math.round((comp / next.progress.total) * 100) : 0 };
     setData(next);
-
     try {
-      const response = await fetch(`/api/board/tasks/${taskId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      if (!response.ok) throw new Error("Update failed");
+      const res = await fetch(`/api/board/${slug}/tasks/${taskId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+      if (!res.ok) throw new Error();
       await fetchBoard();
-    } catch {
-      setData(previous);
-      setError("Could not update task. Please try again.");
-    } finally {
-      setBusyId(null);
-    }
+    } catch { setData(prev); setError(b.updateError); }
+    finally { setBusyId(null); }
   }
 
-  if (!loaded) {
-    return (
-      <main className="board">
-        <div className="board-loading">
-          <div className="board-spinner" />
-          <span>Loading tasks...</span>
-        </div>
-      </main>
-    );
-  }
+  if (!loaded) return <main className="board"><div className="board-loading"><div className="board-spinner" /><span>{b.loading}</span></div></main>;
 
   return (
     <main className="board">
       <header className="board-header">
         <div className="board-header-left">
-          <div className="board-greeting">{getGreeting()}</div>
+          <div className="board-greeting">{greeting}</div>
           <div className="board-date">{formatDate()}</div>
         </div>
         <div className="board-header-right">
+          <LanguageSwitcher compact />
           <div className="board-clock">{clock}</div>
-          <ProgressRing
-            completed={data?.progress.completed ?? 0}
-            total={data?.progress.total ?? 0}
-          />
+          <ProgressRing completed={data?.progress.completed ?? 0} total={data?.progress.total ?? 0} />
         </div>
       </header>
 
@@ -286,15 +190,15 @@ export function BoardClient() {
         {allDone ? (
           <div className="board-all-done">
             <div className="board-all-done-icon">{"\uD83C\uDF89"}</div>
-            <div className="board-all-done-title">All tasks completed!</div>
-            <div className="board-all-done-sub">Great job today. Enjoy the rest of the day.</div>
+            <div className="board-all-done-title">{b.allDoneTitle}</div>
+            <div className="board-all-done-sub">{b.allDoneSub}</div>
           </div>
         ) : null}
 
         {allTasks.length === 0 && !allDone ? (
           <div className="board-empty">
             <div className="board-empty-icon">{"\uD83D\uDCCB"}</div>
-            <div className="board-empty-text">No tasks scheduled for today.</div>
+            <div className="board-empty-text">{b.noTasks}</div>
           </div>
         ) : null}
 
@@ -303,31 +207,19 @@ export function BoardClient() {
             {BLOCKS.map((block) => {
               const tasks = data?.groups[block] ?? [];
               const meta = blockMeta[block];
-              const done = tasks.filter((t) => t.status !== TASK_STATUS.PENDING).length;
-
+              const done = tasks.filter((x) => x.status !== TASK_STATUS.PENDING).length;
               return (
                 <section key={block} className="block-column">
                   <div className="block-header">
-                    <div className={`block-icon ${meta.cssIcon}`}>{meta.icon}</div>
+                    <div className={`block-icon ${meta.css}`}>{meta.icon}</div>
                     <div className="block-title">{meta.label}</div>
-                    <div className="block-count">
-                      {done}/{tasks.length}
-                    </div>
+                    <div className="block-count">{done}/{tasks.length}</div>
                   </div>
-
-                  {tasks.length > 0 ? (
-                    tasks.map((task, i) => (
-                      <div key={task.id} style={{ animationDelay: `${i * 60}ms` }}>
-                        <TaskCard
-                          task={task}
-                          busy={busyId === task.id}
-                          onUpdate={updateStatus}
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="block-empty">Nothing here</div>
-                  )}
+                  {tasks.length > 0 ? tasks.map((task, i) => (
+                    <div key={task.id} style={{ animationDelay: `${i * 60}ms` }}>
+                      <TaskCard task={task} busy={busyId === task.id} onUpdate={updateStatus} />
+                    </div>
+                  )) : <div className="block-empty">{b.nothingHere}</div>}
                 </section>
               );
             })}
@@ -337,7 +229,7 @@ export function BoardClient() {
 
       <div className="board-sync">
         <span className={`sync-dot ${error ? "sync-dot-error" : ""}`} />
-        {error ? "Offline" : "Live"}
+        {error ? b.offline : b.live}
       </div>
     </main>
   );

@@ -1,6 +1,5 @@
-import { BoardClient } from "@/components/board/board-client";
-import "./board.css";
+import { redirect } from "next/navigation";
 
-export default function BoardPage() {
-  return <BoardClient />;
+export default function BoardRedirect() {
+  redirect("/");
 }

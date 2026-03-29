@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 
 type Summary = {
   date: string;
@@ -13,6 +14,8 @@ type Summary = {
 };
 
 export function HistoryOverview() {
+  const { t } = useTranslation();
+  const a = t.admin;
   const [rows, setRows] = useState<Summary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +35,7 @@ export function HistoryOverview() {
 
   return (
     <section className="card" style={{ padding: "1rem" }}>
-      <h2 style={{ marginTop: 0 }}>Last 7 Days</h2>
+      <h2 style={{ marginTop: 0 }}>{a.last7Days}</h2>
       {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
       <div style={{ display: "grid", gap: "0.65rem" }}>
         {rows.map((day) => (
@@ -41,19 +44,19 @@ export function HistoryOverview() {
               <div>
                 <strong>{day.date}</strong>
                 <div style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
-                  {day.completed}/{day.total} completed · {day.skipped} skipped · {day.pending} pending
+                  {day.completed}/{day.total} {a.completedLabel} · {day.skipped} {a.skippedLabel} · {day.pending} {a.pending}
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <div className="pill pill-completed">{day.completionRate}%</div>
                 <Link href={`/admin/history/${day.date}`} className="btn btn-secondary">
-                  View day
+                  {a.viewDay}
                 </Link>
               </div>
             </div>
           </article>
         ))}
-        {rows.length === 0 ? <p style={{ color: "var(--muted)" }}>No historical records yet.</p> : null}
+        {rows.length === 0 ? <p style={{ color: "var(--muted)" }}>{a.noHistory}</p> : null}
       </div>
     </section>
   );

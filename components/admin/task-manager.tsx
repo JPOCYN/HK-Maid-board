@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 import { FREQUENCY_TYPE, FrequencyType, TIME_BLOCK, TimeBlock } from "@/lib/task-constants";
 
 type Template = {
@@ -12,8 +13,6 @@ type Template = {
   weekdays: number[] | null;
   isActive: boolean;
 };
-
-const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 type FormState = {
   title: string;
@@ -34,6 +33,10 @@ const initialForm: FormState = {
 };
 
 export function TaskManager() {
+  const { t } = useTranslation();
+  const a = t.admin;
+  const brd = t.board;
+
   const [tasks, setTasks] = useState<Template[]>([]);
   const [form, setForm] = useState<FormState>(initialForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -51,7 +54,7 @@ export function TaskManager() {
     void loadTasks().catch(() => setError("Could not load tasks."));
   }, []);
 
-  const formTitle = useMemo(() => (editingId ? "Edit Task Template" : "Create Task Template"), [editingId]);
+  const formTitle = useMemo(() => (editingId ? a.editTemplate : a.createTemplate), [editingId, a]);
 
   function resetForm() {
     setForm(initialForm);
@@ -106,7 +109,7 @@ export function TaskManager() {
   }
 
   async function deleteTask(id: string) {
-    const confirmed = window.confirm("Delete this task template?");
+    const confirmed = window.confirm(a.deleteConfirm);
     if (!confirmed) return;
 
     const response = await fetch(`/api/admin/tasks/${id}`, { method: "DELETE" });
@@ -122,7 +125,7 @@ export function TaskManager() {
       ...current,
       weekdays: current.weekdays.includes(day)
         ? current.weekdays.filter((item) => item !== day)
-        : [...current.weekdays, day].sort((a, b) => a - b),
+        : [...current.weekdays, day].sort((x, y) => x - y),
     }));
   }
 
@@ -134,7 +137,7 @@ export function TaskManager() {
           <div style={{ display: "grid", gap: "0.8rem", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
             <div>
               <label className="label" htmlFor="title">
-                Task title
+                {a.taskTitle}
               </label>
               <input
                 id="title"
@@ -146,7 +149,7 @@ export function TaskManager() {
             </div>
             <div>
               <label className="label" htmlFor="timeBlock">
-                Time block
+                {a.timeBlock}
               </label>
               <select
                 id="timeBlock"
@@ -154,16 +157,16 @@ export function TaskManager() {
                 value={form.timeBlock}
                 onChange={(event) => setForm((cur) => ({ ...cur, timeBlock: event.target.value as TimeBlock }))}
               >
-                <option value={TIME_BLOCK.MORNING}>Morning</option>
-                <option value={TIME_BLOCK.AFTERNOON}>Afternoon</option>
-                <option value={TIME_BLOCK.EVENING}>Evening</option>
+                <option value={TIME_BLOCK.MORNING}>{brd.morning}</option>
+                <option value={TIME_BLOCK.AFTERNOON}>{brd.afternoon}</option>
+                <option value={TIME_BLOCK.EVENING}>{brd.evening}</option>
               </select>
             </div>
           </div>
 
           <div style={{ marginTop: "0.8rem" }}>
             <label className="label" htmlFor="notes">
-              Notes (optional)
+              {a.notes}
             </label>
             <textarea
               id="notes"
@@ -176,7 +179,7 @@ export function TaskManager() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem", marginTop: "0.8rem" }}>
             <div>
               <label className="label" htmlFor="frequency">
-                Frequency
+                {a.frequency}
               </label>
               <select
                 id="frequency"
@@ -184,8 +187,8 @@ export function TaskManager() {
                 value={form.frequencyType}
                 onChange={(event) => setForm((cur) => ({ ...cur, frequencyType: event.target.value as FrequencyType }))}
               >
-                <option value={FREQUENCY_TYPE.DAILY}>Daily</option>
-                <option value={FREQUENCY_TYPE.WEEKDAYS}>Specific weekdays</option>
+                <option value={FREQUENCY_TYPE.DAILY}>{a.daily}</option>
+                <option value={FREQUENCY_TYPE.WEEKDAYS}>{a.specificWeekdays}</option>
               </select>
             </div>
             <div style={{ display: "flex", alignItems: "center", marginTop: "1.2rem" }}>
@@ -195,19 +198,19 @@ export function TaskManager() {
                   checked={form.isActive}
                   onChange={(event) => setForm((cur) => ({ ...cur, isActive: event.target.checked }))}
                 />
-                Active template
+                {a.activeTemplate}
               </label>
             </div>
           </div>
 
           {form.frequencyType === FREQUENCY_TYPE.WEEKDAYS ? (
             <div style={{ marginTop: "0.8rem" }}>
-              <div className="label">Weekdays</div>
+              <div className="label">{a.weekdays}</div>
               <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                {weekdayNames.map((label, day) => (
+                {a.weekdayNames.map((label, day) => (
                   <button
                     type="button"
-                    key={label}
+                    key={day}
                     className="btn"
                     onClick={() => toggleWeekday(day)}
                     style={{
@@ -226,11 +229,11 @@ export function TaskManager() {
           {error ? <p style={{ color: "#9b1c1c" }}>{error}</p> : null}
           <div style={{ display: "flex", gap: "0.55rem", marginTop: "0.8rem" }}>
             <button className="btn btn-primary" type="submit" disabled={loading}>
-              {loading ? "Saving..." : editingId ? "Update template" : "Create template"}
+              {loading ? a.saving : editingId ? a.updateTemplate : a.createTemplateBtn}
             </button>
             {editingId ? (
               <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                Cancel edit
+                {a.cancelEdit}
               </button>
             ) : null}
           </div>
@@ -238,7 +241,7 @@ export function TaskManager() {
       </section>
 
       <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>Task Templates</h2>
+        <h2 style={{ marginTop: 0 }}>{a.taskTemplates}</h2>
         <div style={{ display: "grid", gap: "0.65rem" }}>
           {tasks.map((task) => (
             <article key={task.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "0.75rem" }}>
@@ -246,27 +249,27 @@ export function TaskManager() {
                 <div>
                   <div style={{ fontWeight: 600 }}>{task.title}</div>
                   <div style={{ color: "var(--muted)", fontSize: "0.88rem" }}>
-                    {task.timeBlock.toLowerCase()} · {task.frequencyType === FREQUENCY_TYPE.DAILY ? "daily" : "selected weekdays"}
+                    {task.timeBlock.toLowerCase()} · {task.frequencyType === FREQUENCY_TYPE.DAILY ? a.daily : a.selectedWeekdays}
                   </div>
                   {task.notes ? <div style={{ marginTop: "0.25rem", color: "var(--muted)" }}>{task.notes}</div> : null}
                   {!task.isActive ? (
                     <div className="pill pill-skipped" style={{ marginTop: "0.4rem" }}>
-                      Inactive
+                      {a.inactive}
                     </div>
                   ) : null}
                 </div>
                 <div style={{ display: "flex", gap: "0.4rem" }}>
                   <button className="btn btn-secondary" onClick={() => startEdit(task)}>
-                    Edit
+                    {a.edit}
                   </button>
                   <button className="btn btn-danger" onClick={() => deleteTask(task.id)}>
-                    Delete
+                    {a.delete}
                   </button>
                 </div>
               </div>
             </article>
           ))}
-          {tasks.length === 0 ? <div style={{ color: "var(--muted)" }}>No task templates yet.</div> : null}
+          {tasks.length === 0 ? <div style={{ color: "var(--muted)" }}>{a.noTemplates}</div> : null}
         </div>
       </section>
     </div>

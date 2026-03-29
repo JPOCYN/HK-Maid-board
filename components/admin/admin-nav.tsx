@@ -3,15 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "@/components/admin/logout-button";
-
-const links = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/tasks", label: "Tasks" },
-  { href: "/admin/history", label: "History" },
-];
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from "@/lib/i18n/context";
 
 export function AdminNav() {
   const pathname = usePathname();
+  const { t } = useTranslation();
+  const a = t.admin;
+
+  const links = [
+    { href: "/admin", label: a.dashboard },
+    { href: "/admin/tasks", label: a.tasks },
+    { href: "/admin/history", label: a.history },
+  ];
 
   return (
     <header className="card" style={{ padding: "0.8rem 1rem", marginBottom: "1rem" }}>
@@ -36,10 +40,13 @@ export function AdminNav() {
             );
           })}
           <Link href="/board" className="btn" style={{ padding: "0.45rem 0.8rem", background: "#ecfdf5", color: "#166534" }}>
-            Open Board
+            {a.openBoard}
           </Link>
         </div>
-        <LogoutButton />
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <LanguageSwitcher />
+          <LogoutButton />
+        </div>
       </div>
     </header>
   );

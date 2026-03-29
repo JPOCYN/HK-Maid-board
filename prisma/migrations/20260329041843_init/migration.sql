@@ -4,8 +4,8 @@ CREATE TABLE "Household" (
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL
 );
 
 -- CreateTable
@@ -16,8 +16,8 @@ CREATE TABLE "AdminUser" (
     "passwordHash" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "AdminUser_householdId_fkey" FOREIGN KEY ("householdId") REFERENCES "Household" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -31,8 +31,8 @@ CREATE TABLE "TaskTemplate" (
     "frequencyType" TEXT NOT NULL,
     "weekdays" JSONB,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TaskTemplate_householdId_fkey" FOREIGN KEY ("householdId") REFERENCES "Household" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -41,15 +41,15 @@ CREATE TABLE "DailyTask" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "householdId" TEXT NOT NULL,
     "templateId" TEXT NOT NULL,
-    "date" DATETIME NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
     "titleSnapshot" TEXT NOT NULL,
     "notesSnapshot" TEXT,
     "timeBlock" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'PENDING',
-    "completedAt" DATETIME,
-    "skippedAt" DATETIME,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "completedAt" TIMESTAMP(3),
+    "skippedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "DailyTask_householdId_fkey" FOREIGN KEY ("householdId") REFERENCES "Household" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "DailyTask_templateId_fkey" FOREIGN KEY ("templateId") REFERENCES "TaskTemplate" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );

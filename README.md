@@ -9,7 +9,7 @@ MaidBoard is a household task management web application built for families with
 
 - Next.js (App Router, TypeScript)
 - Prisma ORM
-- SQLite (local dev; swap to PostgreSQL in production if needed)
+- PostgreSQL (Supabase-friendly)
 - JWT cookie auth for admin sessions
 
 ## System Architecture
@@ -78,19 +78,25 @@ prisma/
 npm install
 ```
 
-2. Create and migrate the database
+2. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+3. Create and migrate the database
 
 ```bash
 npm run db:migrate -- --name init
 ```
 
-3. Seed default household, admin user, and starter templates
+4. Seed default household, admin user, and starter templates
 
 ```bash
 npm run db:seed
 ```
 
-4. Start development server
+5. Start development server
 
 ```bash
 npm run dev
@@ -110,4 +116,28 @@ Change these values in `.env` before production.
 - `/admin`
 - `/admin/tasks`
 - `/admin/history`
+
+## Deploy to Vercel + Supabase
+
+Set these environment variables in Vercel:
+
+- `DATABASE_URL` (Supabase pooled connection string)
+- `DIRECT_URL` (Supabase direct connection string)
+- `JWT_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `DEFAULT_HOUSEHOLD_NAME`
+- `DEFAULT_HOUSEHOLD_SLUG`
+
+Use this build command:
+
+```bash
+npm run vercel-build
+```
+
+After first deploy, run seed once against production database:
+
+```bash
+npm run db:seed
+```
 

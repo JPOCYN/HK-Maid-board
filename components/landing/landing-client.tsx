@@ -131,6 +131,16 @@ export function LandingClient() {
         </div>
       </section>
 
+      {/* Board showcase mockup */}
+      <section className="landing-showcase">
+        <h2>{l.showcaseTitle}</h2>
+        <p className="landing-showcase-sub">{l.showcaseSub}</p>
+        <BoardMockup
+          tasks={l.demoTasks}
+          labels={{ morning: t.board.morning, afternoon: t.board.afternoon, evening: t.board.evening }}
+        />
+      </section>
+
       {/* "Use your idle device" section */}
       <section className="landing-devices">
         <h2>{l.deviceTitle}</h2>
@@ -156,16 +166,6 @@ export function LandingClient() {
             <p>{l.deviceYouDesc}</p>
           </div>
         </div>
-      </section>
-
-      {/* Board showcase mockup */}
-      <section className="landing-showcase">
-        <h2>{l.showcaseTitle}</h2>
-        <p className="landing-showcase-sub">{l.showcaseSub}</p>
-        <BoardMockup
-          tasks={l.demoTasks}
-          labels={{ morning: t.board.morning, afternoon: t.board.afternoon, evening: t.board.evening }}
-        />
       </section>
 
       <section className="landing-features">

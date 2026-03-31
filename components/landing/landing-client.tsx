@@ -129,6 +129,24 @@ export function LandingClient() {
             {l.tryNow}
           </Link>
         </div>
+        <div className="landing-trust-strip">
+          {l.trustBullets.map((item) => (
+            <span key={item} className="landing-trust-pill">{item}</span>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-busy-mom">
+        <h2>{l.busyMomTitle}</h2>
+        <p>{l.busyMomSub}</p>
+        <div className="landing-busy-mom-grid">
+          {l.busyMomPoints.map((point) => (
+            <div key={point.title} className="landing-busy-mom-card">
+              <div className="landing-busy-mom-card-title">{point.title}</div>
+              <div className="landing-busy-mom-card-body">{point.desc}</div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Board showcase mockup */}
@@ -139,6 +157,51 @@ export function LandingClient() {
           tasks={l.demoTasks}
           labels={{ morning: t.board.morning, afternoon: t.board.afternoon, evening: t.board.evening }}
         />
+      </section>
+
+      <section className="landing-real-use">
+        <h2>{l.realUseTitle}</h2>
+        <p>{l.realUseSub}</p>
+        <div className="landing-real-use-grid">
+          {l.realUseCases.map((item) => (
+            <div key={item.time} className="landing-real-use-card">
+              <div className="landing-real-use-time">{item.time}</div>
+              <div className="landing-real-use-action">{item.action}</div>
+              <div className="landing-real-use-outcome">{item.outcome}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 3-step how-to with visual previews */}
+      <section className="landing-how">
+        <h2>{l.howTitle}</h2>
+        <div className="landing-steps-v2">
+          <div className="landing-step-v2">
+            <div className="landing-step-num">1</div>
+            <div className="landing-step-content">
+              <h3>{l.step1}</h3>
+              <p>{l.step1Desc}</p>
+            </div>
+            <StepPreviewAdmin />
+          </div>
+          <div className="landing-step-v2">
+            <div className="landing-step-num">2</div>
+            <div className="landing-step-content">
+              <h3>{l.step2}</h3>
+              <p>{l.step2Desc}</p>
+            </div>
+            <StepPreviewCode />
+          </div>
+          <div className="landing-step-v2">
+            <div className="landing-step-num">3</div>
+            <div className="landing-step-content">
+              <h3>{l.step3}</h3>
+              <p>{l.step3Desc}</p>
+            </div>
+            <StepPreviewTrack />
+          </div>
+        </div>
       </section>
 
       {/* "Use your idle device" section */}
@@ -183,37 +246,6 @@ export function LandingClient() {
           <div className="landing-feature-icon landing-feature-icon-auto">{"\u2699\uFE0F"}</div>
           <h3>{l.featureAuto}</h3>
           <p>{l.featureAutoDesc}</p>
-        </div>
-      </section>
-
-      {/* 3-step how-to with visual previews */}
-      <section className="landing-how">
-        <h2>{l.howTitle}</h2>
-        <div className="landing-steps-v2">
-          <div className="landing-step-v2">
-            <div className="landing-step-num">1</div>
-            <div className="landing-step-content">
-              <h3>{l.step1}</h3>
-              <p>{l.step1Desc}</p>
-            </div>
-            <StepPreviewAdmin />
-          </div>
-          <div className="landing-step-v2">
-            <div className="landing-step-num">2</div>
-            <div className="landing-step-content">
-              <h3>{l.step2}</h3>
-              <p>{l.step2Desc}</p>
-            </div>
-            <StepPreviewCode />
-          </div>
-          <div className="landing-step-v2">
-            <div className="landing-step-num">3</div>
-            <div className="landing-step-content">
-              <h3>{l.step3}</h3>
-              <p>{l.step3Desc}</p>
-            </div>
-            <StepPreviewTrack />
-          </div>
         </div>
       </section>
 

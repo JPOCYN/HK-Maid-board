@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/lib/i18n/context";
+import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { TASK_STATUS, TaskStatus } from "@/lib/task-constants";
 
@@ -25,8 +26,45 @@ const BLOCKS = ["MORNING", "AFTERNOON", "EVENING"] as const;
 const RING_RADIUS = 33;
 const RING_CIRC = 2 * Math.PI * RING_RADIUS;
 const LAYOUT_KEY = "maidboard:board:layout";
+const PRESET_KEYS = [
+  "presetPrepareBreakfast",
+  "presetMilkTeaToast",
+  "presetCookDinnerSoup",
+  "presetDishwashing",
+  "presetLaundry",
+  "presetIronUniform",
+  "presetKitchenClean",
+  "presetVacuum",
+  "presetMopFloor",
+  "presetBathroom",
+  "presetTrash",
+  "presetMarketShopping",
+  "presetPharmacyRun",
+  "presetSchoolBags",
+  "presetHomeworkCheck",
+  "presetChangeBedsheets",
+  "presetWindowCleaning",
+  "presetFridgeOrganize",
+  "presetPackSchoolLunch",
+  "presetSteamRice",
+  "presetWipeDiningTable",
+  "presetSanitizeToys",
+  "presetBathKids",
+  "presetCollectParcels",
+  "presetWaterPlants",
+  "presetWalkDog",
+] as const;
+const presetZhToEnTitleMap = new Map<string, string>(
+  PRESET_KEYS.map((key) => [dictionaries["zh-HK"].admin[key], dictionaries.en.admin[key]]),
+);
 
 type BoardLayout = "horizontal" | "vertical";
+
+function normalizePresetTitle(title: string, locale: Locale) {
+  if (locale !== "en") return title;
+  const normalizedTitle = title.trim();
+  return presetZhToEnTitleMap.get(normalizedTitle) ?? title;
+}
 
 function ProgressRing({ completed, total }: { completed: number; total: number }) {
   const pct = total > 0 ? completed / total : 0;
@@ -142,7 +180,7 @@ function LayoutToggle({ layout, onChange, labels }: { layout: BoardLayout; onCha
 }
 
 export function BoardClient({ slug }: { slug: string }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const b = t.board;
 
   const [data, setData] = useState<BoardPayload | null>(null);
@@ -312,7 +350,11 @@ export function BoardClient({ slug }: { slug: string }) {
                   </div>
                   {tasks.length > 0 ? tasks.map((task, i) => (
                     <div key={task.id} style={{ animationDelay: `${i * 60}ms` }}>
-                      <TaskCard task={task} busy={busyId === task.id} onUpdate={updateStatus} />
+                      <TaskCard
+                        task={{ ...task, title: normalizePresetTitle(task.title, locale) }}
+                        busy={busyId === task.id}
+                        onUpdate={updateStatus}
+                      />
                     </div>
                   )) : <div className="block-empty">{b.nothingHere}</div>}
                 </section>

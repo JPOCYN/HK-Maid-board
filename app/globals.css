@@ -252,6 +252,116 @@ a {
   border-top: 1px solid var(--separator);
 }
 
+/* ── Admin Tasks (mobile-optimized) ── */
+
+.admin-card-pad {
+  padding: 1.1rem 1rem;
+}
+
+.admin-quick-tabs {
+  display: flex;
+  gap: 0.3rem;
+  overflow-x: auto;
+  padding-bottom: 0.6rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.admin-quick-guide {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 0.7rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 12px;
+  background: rgba(0, 122, 255, 0.08);
+  border: 1px solid rgba(0, 122, 255, 0.14);
+}
+
+.admin-quick-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.admin-time-picker-wrap {
+  margin-bottom: 0.7rem;
+}
+
+.admin-time-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.admin-time-btn {
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  background: rgba(120, 120, 128, 0.08);
+  color: var(--secondary);
+}
+
+.admin-time-btn-active {
+  background: #007aff;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .admin-card-pad {
+    padding: 0.95rem 0.8rem;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-action-row .btn {
+    width: 100%;
+  }
+
+  .admin-list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-list-actions {
+    width: 100%;
+  }
+
+  .admin-list-actions .btn {
+    flex: 1;
+    min-width: 82px;
+  }
+
+  .admin-list-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .admin-list-row-main {
+    width: 100%;
+  }
+
+  .admin-list-row-actions {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-list-row-actions .btn {
+    width: 100%;
+  }
+}
+
 /* ── Animations ── */
 
 @keyframes fadeInUp {

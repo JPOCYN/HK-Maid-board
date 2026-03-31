@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/lib/i18n/context";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 import { FREQUENCY_TYPE, FrequencyType, TIME_BLOCK, TimeBlock } from "@/lib/task-constants";
 
 type Template = {
@@ -42,13 +43,23 @@ type PresetTask = {
     | "presetHomeworkCheck"
     | "presetChangeBedsheets"
     | "presetWindowCleaning"
-    | "presetFridgeOrganize";
+    | "presetFridgeOrganize"
+    | "presetPackSchoolLunch"
+    | "presetSteamRice"
+    | "presetWipeDiningTable"
+    | "presetSanitizeToys"
+    | "presetBathKids"
+    | "presetCollectParcels"
+    | "presetWaterPlants"
+    | "presetWalkDog";
   categoryKey:
     | "quickCategoryMeals"
     | "quickCategoryCleaning"
     | "quickCategoryKids"
     | "quickCategoryErrands"
-    | "quickCategoryWeekly";
+    | "quickCategoryWeekly"
+    | "quickCategoryHomeCare"
+    | "quickCategoryPets";
   timeBlock: TimeBlock;
   frequencyType: FrequencyType;
   weekdays?: number[];
@@ -67,8 +78,11 @@ const initialForm: FormState = {
 const presetCatalog: PresetTask[] = [
   { key: "presetPrepareBreakfast", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.MORNING, frequencyType: FREQUENCY_TYPE.DAILY },
   { key: "presetMilkTeaToast", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.MORNING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 2, 3, 4, 5] },
+  { key: "presetPackSchoolLunch", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.MORNING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 2, 3, 4, 5] },
+  { key: "presetSteamRice", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.DAILY },
   { key: "presetCookDinnerSoup", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
   { key: "presetDishwashing", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
+  { key: "presetWipeDiningTable", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
   { key: "presetKitchenClean", categoryKey: "quickCategoryMeals", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
   { key: "presetVacuum", categoryKey: "quickCategoryCleaning", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 3, 5] },
   { key: "presetMopFloor", categoryKey: "quickCategoryCleaning", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.DAILY },
@@ -77,12 +91,17 @@ const presetCatalog: PresetTask[] = [
   { key: "presetIronUniform", categoryKey: "quickCategoryCleaning", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 4] },
   { key: "presetSchoolBags", categoryKey: "quickCategoryKids", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [0, 1, 2, 3, 4] },
   { key: "presetHomeworkCheck", categoryKey: "quickCategoryKids", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 2, 3, 4, 5] },
+  { key: "presetSanitizeToys", categoryKey: "quickCategoryKids", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 3, 5] },
+  { key: "presetBathKids", categoryKey: "quickCategoryKids", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 2, 3, 4, 5] },
   { key: "presetMarketShopping", categoryKey: "quickCategoryErrands", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.DAILY },
   { key: "presetPharmacyRun", categoryKey: "quickCategoryErrands", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [2, 5] },
+  { key: "presetCollectParcels", categoryKey: "quickCategoryErrands", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [1, 2, 3, 4, 5] },
   { key: "presetTrash", categoryKey: "quickCategoryErrands", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
   { key: "presetChangeBedsheets", categoryKey: "quickCategoryWeekly", timeBlock: TIME_BLOCK.MORNING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [6] },
   { key: "presetWindowCleaning", categoryKey: "quickCategoryWeekly", timeBlock: TIME_BLOCK.AFTERNOON, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [6] },
   { key: "presetFridgeOrganize", categoryKey: "quickCategoryWeekly", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [0] },
+  { key: "presetWaterPlants", categoryKey: "quickCategoryHomeCare", timeBlock: TIME_BLOCK.MORNING, frequencyType: FREQUENCY_TYPE.WEEKDAYS, weekdays: [0, 2, 4, 6] },
+  { key: "presetWalkDog", categoryKey: "quickCategoryPets", timeBlock: TIME_BLOCK.EVENING, frequencyType: FREQUENCY_TYPE.DAILY },
 ];
 
 const categoryOrder: PresetTask["categoryKey"][] = [
@@ -91,7 +110,12 @@ const categoryOrder: PresetTask["categoryKey"][] = [
   "quickCategoryKids",
   "quickCategoryErrands",
   "quickCategoryWeekly",
+  "quickCategoryHomeCare",
+  "quickCategoryPets",
 ];
+
+const hanCharacterRegex = /[\u3400-\u9FFF]/;
+const QUICK_GUIDE_STORAGE_KEY = "maidboard_admin_quick_add_guide_seen";
 
 export function TaskManager() {
   const { t } = useTranslation();
@@ -106,7 +130,10 @@ export function TaskManager() {
   const [presetLoadingKey, setPresetLoadingKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [presetOpen, setPresetOpen] = useState(false);
+  const [showQuickGuide, setShowQuickGuide] = useState(false);
+  const [quickAddTimeBlock, setQuickAddTimeBlock] = useState<TimeBlock | "DEFAULT">("DEFAULT");
   const [activeCategory, setActiveCategory] = useState<PresetTask["categoryKey"]>(categoryOrder[0]);
+  const hasChineseInput = hanCharacterRegex.test(form.title);
 
   async function loadTasks() {
     const response = await fetch("/api/admin/tasks", { cache: "no-store" });
@@ -119,6 +146,20 @@ export function TaskManager() {
   useEffect(() => {
     void loadTasks().catch(() => setError("Could not load tasks."));
   }, []);
+
+  useEffect(() => {
+    try {
+      setShowQuickGuide(!window.localStorage.getItem(QUICK_GUIDE_STORAGE_KEY));
+    } catch {
+      setShowQuickGuide(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showQuickGuide && tasks.length === 0) {
+      setPresetOpen(true);
+    }
+  }, [showQuickGuide, tasks.length]);
 
   const formTitle = useMemo(() => (editingId ? a.editTemplate : a.createTemplate), [editingId, a]);
 
@@ -175,14 +216,23 @@ export function TaskManager() {
     }
   }
 
+  function dismissQuickGuide() {
+    setShowQuickGuide(false);
+    try {
+      window.localStorage.setItem(QUICK_GUIDE_STORAGE_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
   async function addPresetTask(preset: PresetTask) {
     setPresetLoadingKey(preset.key);
     setError(null);
     try {
       const payload = {
-        title: a[preset.key],
+        title: dictionaries.en.admin[preset.key],
         notes: preset.notes ?? null,
-        timeBlock: preset.timeBlock,
+        timeBlock: quickAddTimeBlock === "DEFAULT" ? preset.timeBlock : quickAddTimeBlock,
         frequencyType: preset.frequencyType,
         weekdays: preset.frequencyType === FREQUENCY_TYPE.WEEKDAYS ? (preset.weekdays ?? [1, 2, 3, 4, 5]) : [],
         oneTimeDate: null,
@@ -197,6 +247,7 @@ export function TaskManager() {
         throw new Error(data.error ?? "Save failed");
       }
       await loadTasks();
+      dismissQuickGuide();
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "Save failed");
     } finally {
@@ -249,9 +300,9 @@ export function TaskManager() {
   }
 
   return (
-    <div style={{ display: "grid", gap: "0.85rem" }}>
+    <div className="admin-task-root" style={{ display: "grid", gap: "0.85rem" }}>
       {/* Quick Add Presets — collapsible compact chips */}
-      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+      <section className="card admin-card-pad">
         <button
           type="button"
           onClick={() => setPresetOpen((v) => !v)}
@@ -287,16 +338,56 @@ export function TaskManager() {
 
         {presetOpen ? (
           <div style={{ marginTop: "0.85rem" }}>
+            {showQuickGuide ? (
+              <div className="admin-quick-guide">
+                <div style={{ fontWeight: 700 }}>{a.quickAddGuideTitle}</div>
+                <div style={{ fontSize: "0.85rem", color: "var(--secondary)" }}>{a.quickAddGuideBody}</div>
+                <div className="admin-quick-guide-actions">
+                  <button type="button" className="btn btn-secondary" onClick={dismissQuickGuide}>
+                    {a.quickAddGuideAction}
+                  </button>
+                  <button type="button" className="btn btn-ghost" onClick={dismissQuickGuide}>
+                    {a.quickAddGuideDismiss}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <div className="admin-time-picker-wrap">
+              <div className="label" style={{ marginBottom: "0.35rem" }}>{a.quickAddTimeLabel}</div>
+              <div className="admin-time-picker">
+                <button
+                  type="button"
+                  className={`admin-time-btn ${quickAddTimeBlock === "DEFAULT" ? "admin-time-btn-active" : ""}`}
+                  onClick={() => setQuickAddTimeBlock("DEFAULT")}
+                >
+                  {a.quickAddUseDefaultTime}
+                </button>
+                <button
+                  type="button"
+                  className={`admin-time-btn ${quickAddTimeBlock === TIME_BLOCK.MORNING ? "admin-time-btn-active" : ""}`}
+                  onClick={() => setQuickAddTimeBlock(TIME_BLOCK.MORNING)}
+                >
+                  {brd.morning}
+                </button>
+                <button
+                  type="button"
+                  className={`admin-time-btn ${quickAddTimeBlock === TIME_BLOCK.AFTERNOON ? "admin-time-btn-active" : ""}`}
+                  onClick={() => setQuickAddTimeBlock(TIME_BLOCK.AFTERNOON)}
+                >
+                  {brd.afternoon}
+                </button>
+                <button
+                  type="button"
+                  className={`admin-time-btn ${quickAddTimeBlock === TIME_BLOCK.EVENING ? "admin-time-btn-active" : ""}`}
+                  onClick={() => setQuickAddTimeBlock(TIME_BLOCK.EVENING)}
+                >
+                  {brd.evening}
+                </button>
+              </div>
+            </div>
             {/* Category tabs */}
             <div
-              style={{
-                display: "flex",
-                gap: "0.3rem",
-                overflowX: "auto",
-                paddingBottom: "0.6rem",
-                WebkitOverflowScrolling: "touch",
-                scrollbarWidth: "none",
-              }}
+              className="admin-quick-tabs"
             >
               {categoryOrder.map((catKey) => (
                 <button
@@ -359,11 +450,11 @@ export function TaskManager() {
       </section>
 
       {/* Create / Edit Task */}
-      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
+      <section className="card admin-card-pad">
         <div style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.15rem" }}>{formTitle}</div>
         <p style={{ color: "var(--muted)", margin: "0 0 1rem", fontSize: "0.88rem" }}>{a.taskTitleHint}</p>
         <form onSubmit={saveTask}>
-          <div style={{ display: "grid", gap: "0.85rem", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+          <div className="admin-form-grid" style={{ display: "grid", gap: "0.85rem", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
             <div>
               <label className="label" htmlFor="title">{a.taskTitle}</label>
               <input
@@ -373,6 +464,10 @@ export function TaskManager() {
                 value={form.title}
                 onChange={(event) => setForm((cur) => ({ ...cur, title: event.target.value }))}
               />
+              <p style={{ margin: "0.3rem 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>{a.taskTitleEnglishReminder}</p>
+              {hasChineseInput ? (
+                <p style={{ margin: "0.3rem 0 0", fontSize: "0.78rem", color: "var(--danger)" }}>{a.taskTitleChineseDetectedReminder}</p>
+              ) : null}
             </div>
             <div>
               <label className="label" htmlFor="timeBlock">{a.timeBlock}</label>
@@ -458,7 +553,7 @@ export function TaskManager() {
           ) : null}
 
           {error ? <p style={{ color: "var(--danger)", fontSize: "0.88rem" }}>{error}</p> : null}
-          <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
+          <div className="admin-action-row" style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
             <button className="btn btn-primary" type="submit" disabled={loading} style={{ minHeight: 46, borderRadius: 14, fontSize: "0.95rem" }}>
               {loading ? a.saving : editingId ? a.updateTemplate : a.createTemplateBtn}
             </button>
@@ -472,15 +567,15 @@ export function TaskManager() {
       </section>
 
       {/* Task List */}
-      <section className="card" style={{ padding: "1.2rem 1.4rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
+      <section className="card admin-card-pad">
+        <div className="admin-list-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
           <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>
             {a.taskTemplates}
             <span style={{ fontWeight: 500, color: "var(--muted)", fontSize: "0.85rem", marginLeft: "0.4rem" }}>
               ({tasks.length})
             </span>
           </div>
-          <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
+          <div className="admin-list-actions" style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
             <button type="button" className="btn btn-ghost" style={{ fontSize: "0.82rem", padding: "0.35rem 0.65rem" }} onClick={() => setSelectedIds(tasks.map((t) => t.id))} disabled={tasks.length === 0}>
               {a.selectAll}
             </button>
@@ -498,13 +593,13 @@ export function TaskManager() {
           {tasks.map((task, idx) => (
             <div
               key={task.id}
-              className="ios-row"
+              className="ios-row admin-list-row"
               style={{
                 borderTop: idx > 0 ? "1px solid var(--separator)" : "none",
                 background: selectedIds.includes(task.id) ? "rgba(0,122,255,0.04)" : "transparent",
               }}
             >
-              <label style={{ display: "flex", alignItems: "center", gap: "0.55rem", flex: 1, minWidth: 0, cursor: "pointer" }}>
+              <label className="admin-list-row-main" style={{ display: "flex", alignItems: "center", gap: "0.55rem", flex: 1, minWidth: 0, cursor: "pointer" }}>
                 <input
                   type="checkbox"
                   checked={selectedIds.includes(task.id)}
@@ -528,7 +623,7 @@ export function TaskManager() {
                   {task.notes ? <div style={{ marginTop: "0.15rem", color: "var(--muted)", fontSize: "0.78rem" }}>{task.notes}</div> : null}
                 </div>
               </label>
-              <div style={{ display: "flex", gap: "0.3rem", flexShrink: 0 }}>
+              <div className="admin-list-row-actions" style={{ display: "flex", gap: "0.3rem", flexShrink: 0 }}>
                 <button className="btn btn-secondary" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem" }} onClick={() => startEdit(task)}>
                   {a.edit}
                 </button>

@@ -118,6 +118,7 @@ export function LandingClient() {
         </div>
       </nav>
 
+      {/* Hero */}
       <section className="landing-hero">
         <h1>{l.heroTitle}</h1>
         <p>{l.heroSub}</p>
@@ -129,21 +130,18 @@ export function LandingClient() {
             {l.tryNow}
           </Link>
         </div>
-        <div className="landing-trust-strip">
-          {l.trustBullets.map((item) => (
-            <span key={item} className="landing-trust-pill">{item}</span>
-          ))}
-        </div>
       </section>
 
-      <section className="landing-busy-mom">
-        <h2>{l.busyMomTitle}</h2>
-        <p>{l.busyMomSub}</p>
-        <div className="landing-busy-mom-grid">
-          {l.busyMomPoints.map((point) => (
-            <div key={point.title} className="landing-busy-mom-card">
-              <div className="landing-busy-mom-card-title">{point.title}</div>
-              <div className="landing-busy-mom-card-body">{point.desc}</div>
+      {/* Pain points */}
+      <section className="landing-pain">
+        <h2>{l.painTitle}</h2>
+        <div className="landing-pain-grid">
+          {l.painPoints.map((item) => (
+            <div key={item.pain} className="landing-pain-card">
+              <div className="landing-pain-emoji">{item.emoji}</div>
+              <div className="landing-pain-problem">{item.pain}</div>
+              <div className="landing-pain-arrow">{"\u2193"}</div>
+              <div className="landing-pain-solution">{item.solve}</div>
             </div>
           ))}
         </div>
@@ -159,21 +157,7 @@ export function LandingClient() {
         />
       </section>
 
-      <section className="landing-real-use">
-        <h2>{l.realUseTitle}</h2>
-        <p>{l.realUseSub}</p>
-        <div className="landing-real-use-grid">
-          {l.realUseCases.map((item) => (
-            <div key={item.time} className="landing-real-use-card">
-              <div className="landing-real-use-time">{item.time}</div>
-              <div className="landing-real-use-action">{item.action}</div>
-              <div className="landing-real-use-outcome">{item.outcome}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 3-step how-to with visual previews */}
+      {/* 3-step how-to */}
       <section className="landing-how">
         <h2>{l.howTitle}</h2>
         <div className="landing-steps-v2">
@@ -204,66 +188,26 @@ export function LandingClient() {
         </div>
       </section>
 
-      {/* "Use your idle device" section */}
-      <section className="landing-devices">
-        <h2>{l.deviceTitle}</h2>
-        <p className="landing-devices-sub">{l.deviceSub}</p>
-        <div className="landing-devices-grid">
-          <div className="landing-device-card">
-            <div className="landing-device-icon">{"\uD83D\uDCF1"}</div>
-            <div className="landing-device-emoji-row">
-              <span className="landing-device-emoji-item">{"\uD83D\uDCBB"}</span>
-              <span className="landing-device-emoji-item">{"\uD83E\uDDF9"}</span>
+      {/* Why this app — competitor comparison */}
+      <section className="landing-why">
+        <h2>{l.whyTitle}</h2>
+        <p className="landing-why-sub">{l.whySub}</p>
+        <div className="landing-why-grid">
+          {l.whyCompare.map((item) => (
+            <div key={item.tool} className="landing-why-card">
+              <div className="landing-why-tool">{item.tool}</div>
+              <div className="landing-why-problem">{item.problem}</div>
+              <div className="landing-why-divider" />
+              <div className="landing-why-us">
+                <span className="landing-why-badge">HK MaidBoard</span>
+                {item.us}
+              </div>
             </div>
-            <h3>{l.devicePad}</h3>
-            <p>{l.devicePadDesc}</p>
-          </div>
-          <div className="landing-device-card">
-            <div className="landing-device-icon">{"\uD83D\uDCF2"}</div>
-            <h3>{l.devicePhone}</h3>
-            <p>{l.devicePhoneDesc}</p>
-          </div>
-          <div className="landing-device-card">
-            <div className="landing-device-icon">{"\u2705"}</div>
-            <h3>{l.deviceYou}</h3>
-            <p>{l.deviceYouDesc}</p>
-          </div>
+          ))}
         </div>
       </section>
 
-      <section className="landing-features">
-        <div className="landing-feature-card">
-          <div className="landing-feature-icon landing-feature-icon-board">{"\uD83D\uDCCB"}</div>
-          <h3>{l.featureBoard}</h3>
-          <p>{l.featureBoardDesc}</p>
-        </div>
-        <div className="landing-feature-card">
-          <div className="landing-feature-icon landing-feature-icon-admin">{"\uD83D\uDCF1"}</div>
-          <h3>{l.featureAdmin}</h3>
-          <p>{l.featureAdminDesc}</p>
-        </div>
-        <div className="landing-feature-card">
-          <div className="landing-feature-icon landing-feature-icon-auto">{"\u2699\uFE0F"}</div>
-          <h3>{l.featureAuto}</h3>
-          <p>{l.featureAutoDesc}</p>
-        </div>
-      </section>
-
-      {/* House Rules feature highlight */}
-      <section className="landing-rules-feature">
-        <div className="landing-rules-feature-inner">
-          <div className="landing-rules-feature-icon">{"\uD83D\uDCDC"}</div>
-          <h2>{l.rulesFeatureTitle}</h2>
-          <p>{l.rulesFeatureSub}</p>
-          <ul className="landing-rules-bullets">
-            {l.rulesFeatureBullets.map((b, i) => (
-              <li key={i}>{b}</li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* SEO keyword section */}
+      {/* SEO */}
       <section className="landing-seo">
         <h2>{l.seoTitle}</h2>
         <p>{l.seoParagraph}</p>
@@ -274,12 +218,18 @@ export function LandingClient() {
         </div>
       </section>
 
+      {/* CTA */}
       <section className="landing-cta">
         <h2>{l.ctaTitle}</h2>
         <p>{l.ctaSub}</p>
-        <Link href="/admin/signup" className="landing-btn-primary">
-          {l.getStarted} {"\u2192"}
-        </Link>
+        <div className="landing-hero-actions">
+          <Link href="/admin/signup" className="landing-btn-primary">
+            {l.getStarted} {"\u2192"}
+          </Link>
+          <Link href="/try" className="landing-btn-secondary">
+            {l.tryNow}
+          </Link>
+        </div>
       </section>
 
       <footer className="landing-footer">

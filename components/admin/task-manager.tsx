@@ -326,6 +326,15 @@ export function TaskManager() {
     return brd.evening;
   }
 
+  function formatWeekdays(weekdays: number[] | null) {
+    if (!weekdays || weekdays.length === 0) return a.selectedWeekdays;
+    return weekdays
+      .slice()
+      .sort((x, y) => x - y)
+      .map((day) => a.weekdayNames[day] ?? String(day))
+      .join(", ");
+  }
+
   return (
     <div className="admin-task-root" style={{ display: "grid", gap: "0.85rem" }}>
       {/* Quick Add Presets — collapsible compact chips */}
@@ -645,7 +654,7 @@ export function TaskManager() {
                     {task.frequencyType === FREQUENCY_TYPE.DAILY
                       ? a.daily
                       : task.frequencyType === FREQUENCY_TYPE.WEEKDAYS
-                        ? a.selectedWeekdays
+                        ? formatWeekdays(task.weekdays)
                         : `${a.oneTime}${task.oneTimeDate ? ` (${task.oneTimeDate})` : ""}`}
                   </div>
                   {task.notes ? <div style={{ marginTop: "0.15rem", color: "var(--muted)", fontSize: "0.78rem" }}>{task.notes}</div> : null}

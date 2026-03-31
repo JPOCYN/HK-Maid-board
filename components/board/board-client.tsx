@@ -57,13 +57,21 @@ const PRESET_KEYS = [
 const presetZhToEnTitleMap = new Map<string, string>(
   PRESET_KEYS.map((key) => [dictionaries["zh-HK"].admin[key], dictionaries.en.admin[key]]),
 );
+const presetEnToZhTitleMap = new Map<string, string>(
+  PRESET_KEYS.map((key) => [dictionaries.en.admin[key], dictionaries["zh-HK"].admin[key]]),
+);
 
 type BoardLayout = "horizontal" | "vertical";
 
 function normalizePresetTitle(title: string, locale: Locale) {
-  if (locale !== "en") return title;
   const normalizedTitle = title.trim();
-  return presetZhToEnTitleMap.get(normalizedTitle) ?? title;
+  if (locale === "en") {
+    return presetZhToEnTitleMap.get(normalizedTitle) ?? title;
+  }
+  if (locale === "zh-HK") {
+    return presetEnToZhTitleMap.get(normalizedTitle) ?? title;
+  }
+  return title;
 }
 
 function ProgressRing({ completed, total }: { completed: number; total: number }) {

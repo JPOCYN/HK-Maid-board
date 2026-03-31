@@ -258,6 +258,11 @@ a {
   padding: 1.1rem 1rem;
 }
 
+.admin-task-root {
+  width: 100%;
+  overflow-x: clip;
+}
+
 .admin-quick-tabs {
   display: flex;
   gap: 0.3rem;
@@ -309,9 +314,52 @@ a {
   color: #fff;
 }
 
+.admin-preset-chips {
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-preset-chip {
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.admin-quick-tab-btn {
+  max-width: 100%;
+  white-space: normal !important;
+  text-align: left;
+}
+
+.admin-onboard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.admin-onboard-modal {
+  width: min(460px, 100%);
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  padding: 1rem;
+}
+
 @media (max-width: 768px) {
   .admin-card-pad {
     padding: 0.95rem 0.8rem;
+  }
+
+  .admin-quick-tabs {
+    overflow-x: visible;
+    flex-wrap: wrap;
+    padding-bottom: 0;
   }
 
   .admin-form-grid {

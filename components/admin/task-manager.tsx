@@ -116,6 +116,7 @@ const categoryOrder: PresetTask["categoryKey"][] = [
 
 const hanCharacterRegex = /[\u3400-\u9FFF]/;
 const QUICK_GUIDE_STORAGE_KEY = "maidboard_admin_quick_add_guide_seen";
+const ONBOARDING_STORAGE_KEY = "maidboard_admin_onboarding_seen";
 
 export function TaskManager() {
   const { t } = useTranslation();
@@ -132,6 +133,8 @@ export function TaskManager() {
   const [presetOpen, setPresetOpen] = useState(false);
   const [showQuickGuide, setShowQuickGuide] = useState(false);
   const [quickAddTimeBlock, setQuickAddTimeBlock] = useState<TimeBlock | "DEFAULT">("DEFAULT");
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
   const [activeCategory, setActiveCategory] = useState<PresetTask["categoryKey"]>(categoryOrder[0]);
   const hasChineseInput = hanCharacterRegex.test(form.title);
 
@@ -152,6 +155,14 @@ export function TaskManager() {
       setShowQuickGuide(!window.localStorage.getItem(QUICK_GUIDE_STORAGE_KEY));
     } catch {
       setShowQuickGuide(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      setOnboardingOpen(!window.localStorage.getItem(ONBOARDING_STORAGE_KEY));
+    } catch {
+      setOnboardingOpen(true);
     }
   }, []);
 
@@ -224,6 +235,22 @@ export function TaskManager() {
       /* ignore */
     }
   }
+
+  function closeOnboarding() {
+    setOnboardingOpen(false);
+    setOnboardingStep(0);
+    try {
+      window.localStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const onboardingSteps = [
+    { title: a.onboardingStep1Title, body: a.onboardingStep1Body },
+    { title: a.onboardingStep2Title, body: a.onboardingStep2Body },
+    { title: a.onboardingStep3Title, body: a.onboardingStep3Body },
+  ];
 
   async function addPresetTask(preset: PresetTask) {
     setPresetLoadingKey(preset.key);
@@ -394,7 +421,8 @@ export function TaskManager() {
                   key={catKey}
                   type="button"
                   onClick={() => setActiveCategory(catKey)}
-                  style={{
+                    className="admin-quick-tab-btn"
+                    style={{
                     padding: "0.38rem 0.75rem",
                     borderRadius: 980,
                     border: "none",
@@ -402,7 +430,6 @@ export function TaskManager() {
                     fontSize: "0.8rem",
                     fontWeight: 600,
                     fontFamily: "inherit",
-                    whiteSpace: "nowrap",
                     background: activeCategory === catKey ? "#007aff" : "rgba(120,120,128,0.08)",
                     color: activeCategory === catKey ? "#fff" : "var(--secondary)",
                     transition: "all 180ms ease",
@@ -414,13 +441,14 @@ export function TaskManager() {
             </div>
 
             {/* Preset chips for active category */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+            <div className="admin-preset-chips" style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
               {presetCatalog
                 .filter((p) => p.categoryKey === activeCategory)
                 .map((preset) => (
                   <button
                     key={preset.key}
                     type="button"
+                    className="admin-preset-chip"
                     onClick={() => addPresetTask(preset)}
                     disabled={presetLoadingKey === preset.key}
                     style={{
@@ -638,6 +666,46 @@ export function TaskManager() {
           ) : null}
         </div>
       </section>
+      {onboardingOpen ? (
+        <div className="admin-onboard-overlay" onClick={closeOnboarding}>
+          <div className="admin-onboard-modal" onClick={(event) => event.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem" }}>
+              <div style={{ fontWeight: 700 }}>{a.onboardingTitle}</div>
+              <button type="button" className="btn btn-ghost" style={{ padding: "0.35rem 0.55rem" }} onClick={closeOnboarding}>
+                {a.onboardingSkip}
+              </button>
+            </div>
+            <div style={{ marginTop: "0.75rem", fontSize: "0.82rem", color: "var(--muted)" }}>
+              {a.onboardingStepLabel} {onboardingStep + 1}/3
+            </div>
+            <div style={{ marginTop: "0.5rem", fontWeight: 700, fontSize: "1rem" }}>{onboardingSteps[onboardingStep].title}</div>
+            <div style={{ marginTop: "0.35rem", color: "var(--secondary)", lineHeight: 1.45 }}>{onboardingSteps[onboardingStep].body}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.5rem", marginTop: "1rem" }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setOnboardingStep((current) => Math.max(current - 1, 0))}
+                disabled={onboardingStep === 0}
+              >
+                {a.onboardingBack}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  if (onboardingStep === onboardingSteps.length - 1) {
+                    closeOnboarding();
+                    return;
+                  }
+                  setOnboardingStep((current) => Math.min(current + 1, onboardingSteps.length - 1));
+                }}
+              >
+                {onboardingStep === onboardingSteps.length - 1 ? a.onboardingDone : a.onboardingNext}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

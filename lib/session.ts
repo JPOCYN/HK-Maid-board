@@ -10,6 +10,7 @@ export type SessionPayload = {
   householdId: string;
   boardToken: string;
   email: string;
+  isGuest?: boolean;
 };
 
 async function getSecret() {
@@ -61,6 +62,7 @@ export async function readSession(): Promise<SessionPayload | null> {
       householdId: payload.householdId,
       boardToken: (payload.boardToken as string) ?? "",
       email: payload.email,
+      isGuest: payload.isGuest === true,
     };
   } catch {
     return null;

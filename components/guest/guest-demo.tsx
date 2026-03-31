@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/lib/i18n/context";
 import { TIME_BLOCK, TimeBlock } from "@/lib/task-constants";
@@ -45,6 +46,7 @@ function saveGuestTasks(tasks: GuestTask[]) {
 }
 
 export function GuestDemo() {
+  const router = useRouter();
   const { t } = useTranslation();
   const g = t.guest;
   const a = t.admin;
@@ -57,6 +59,8 @@ export function GuestDemo() {
   const [showTimedReminder, setShowTimedReminder] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [startingGuestMode, setStartingGuestMode] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
     setTasks(readGuestTasks());
@@ -130,6 +134,31 @@ export function GuestDemo() {
     return b.evening;
   }
 
+  async function startFullGuestMode() {
+    setStartingGuestMode(true);
+    setStartError(null);
+    try {
+      const response = await fetch("/api/auth/guest-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tasks: tasks.map((task) => ({ title: task.title, timeBlock: task.timeBlock })),
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setStartError(payload.error ?? g.startError);
+        return;
+      }
+      router.replace(payload.redirectTo ?? "/admin");
+      router.refresh();
+    } catch {
+      setStartError(g.startError);
+    } finally {
+      setStartingGuestMode(false);
+    }
+  }
+
   return (
     <div style={{ display: "grid", gap: "0.9rem" }}>
       <section className="card" style={{ padding: "1rem" }}>
@@ -139,10 +168,14 @@ export function GuestDemo() {
           {showTimedReminder ? g.warningTimed : g.warning}
         </div>
         <div style={{ marginTop: "0.65rem", display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+          <button type="button" className="btn btn-primary" disabled={startingGuestMode} onClick={startFullGuestMode}>
+            {startingGuestMode ? g.starting : g.startFullGuestMode}
+          </button>
           <Link href="/admin/signup" className="btn btn-primary">{g.ctaSignup}</Link>
           <Link href="/try/board" className="btn btn-secondary">{g.openBoardPreview}</Link>
           <button type="button" className="btn btn-ghost" onClick={() => setShowTimedReminder(false)}>{g.ctaContinue}</button>
         </div>
+        {startError ? <div style={{ marginTop: "0.55rem", color: "var(--danger)", fontSize: "0.9rem" }}>{startError}</div> : null}
       </section>
 
       <section className="card" style={{ padding: "1rem" }}>

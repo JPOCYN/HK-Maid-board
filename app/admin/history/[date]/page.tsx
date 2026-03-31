@@ -16,7 +16,7 @@ export default async function AdminHistoryDetailPage({ params }: Params) {
   return (
     <LanguageProvider>
       <main className="container" style={{ padding: "1rem 0 2rem" }}>
-        <AdminNav boardToken={session.boardToken} />
+        <AdminNav boardToken={session.boardToken} isGuest={session.isGuest} />
         <div style={{ marginBottom: "0.8rem" }}>
           <HistoryBackLink />
         </div>

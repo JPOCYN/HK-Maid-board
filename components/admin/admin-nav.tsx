@@ -6,7 +6,7 @@ import { LogoutButton } from "@/components/admin/logout-button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "@/lib/i18n/context";
 
-export function AdminNav({ boardToken }: { boardToken?: string }) {
+export function AdminNav({ boardToken, isGuest = false }: { boardToken?: string; isGuest?: boolean }) {
   const pathname = usePathname();
   const { t } = useTranslation();
   const a = t.admin;
@@ -30,6 +30,14 @@ export function AdminNav({ boardToken }: { boardToken?: string }) {
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
+      {isGuest ? (
+        <div style={{ marginBottom: "0.7rem", padding: "0.55rem 0.7rem", borderRadius: 12, background: "rgba(255,149,0,0.12)", color: "#8a5608", display: "flex", justifyContent: "space-between", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ fontSize: "0.88rem" }}>{a.guestModeBanner}</span>
+          <Link href="/admin/signup" className="btn btn-primary" style={{ padding: "0.35rem 0.65rem", fontSize: "0.82rem" }}>
+            {a.guestModeCta}
+          </Link>
+        </div>
+      ) : null}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
           <div style={{ marginRight: "0.5rem" }}>

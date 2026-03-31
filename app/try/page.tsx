@@ -1,6 +1,6 @@
 import { LanguageProvider } from "@/lib/i18n/context";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
-import { GuestDemo } from "@/components/guest/guest-demo";
+import { GuestAutoStart } from "@/components/guest/guest-auto-start";
 
 export default function TryPage() {
   return (
@@ -9,7 +9,7 @@ export default function TryPage() {
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "0.75rem" }}>
           <LanguageSwitcher compact />
         </div>
-        <GuestDemo />
+        <GuestAutoStart />
       </main>
     </LanguageProvider>
   );

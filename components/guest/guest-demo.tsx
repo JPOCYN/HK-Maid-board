@@ -140,6 +140,7 @@ export function GuestDemo() {
         </div>
         <div style={{ marginTop: "0.65rem", display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
           <Link href="/admin/signup" className="btn btn-primary">{g.ctaSignup}</Link>
+          <Link href="/try/board" className="btn btn-secondary">{g.openBoardPreview}</Link>
           <button type="button" className="btn btn-ghost" onClick={() => setShowTimedReminder(false)}>{g.ctaContinue}</button>
         </div>
       </section>

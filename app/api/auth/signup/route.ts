@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Please fill all fields correctly." }, { status: 400 });
     }
 
-    const { name, email, password, householdName } = parsed.data;
+    const { email, password } = parsed.data;
 
     const existingUser = await prisma.adminUser.findUnique({
       where: { email },
@@ -46,6 +46,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
     }
 
+    const emailPrefix = email.split("@")[0]?.trim() || "home";
+    const safeBase = emailPrefix.replace(/[^a-zA-Z0-9]+/g, " ").trim();
+    const ownerName = safeBase ? safeBase.slice(0, 100) : "Owner";
+    const householdName = `${ownerName}'s Home`;
     const slug = await uniqueSlug(householdName);
     const passwordHash = await hash(password, 12);
     const homeCode = await generateUniqueHomeCode();
@@ -58,7 +62,7 @@ export async function POST(request: Request) {
       data: {
         email,
         passwordHash,
-        name,
+        name: ownerName,
         householdId: household.id,
       },
     });

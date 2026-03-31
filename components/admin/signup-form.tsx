@@ -10,10 +10,8 @@ export function SignupForm() {
   const { t } = useTranslation();
   const a = t.admin;
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [householdName, setHouseholdName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +24,7 @@ export function SignupForm() {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, householdName }),
+        body: JSON.stringify({ email, password }),
       });
       const payload = await response.json();
       if (!response.ok) {
@@ -56,11 +54,6 @@ export function SignupForm() {
       </p>
 
       <div style={{ marginBottom: "1rem" }}>
-        <label className="label" htmlFor="name">{a.name}</label>
-        <input id="name" className="input" required value={name} onChange={(e) => setName(e.target.value)} />
-      </div>
-
-      <div style={{ marginBottom: "1rem" }}>
         <label className="label" htmlFor="email">{a.email}</label>
         <input id="email" className="input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
@@ -68,11 +61,6 @@ export function SignupForm() {
       <div style={{ marginBottom: "1rem" }}>
         <label className="label" htmlFor="password">{a.password}</label>
         <input id="password" className="input" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
-      </div>
-
-      <div style={{ marginBottom: "1rem" }}>
-        <label className="label" htmlFor="household">{a.householdName}</label>
-        <input id="household" className="input" required value={householdName} onChange={(e) => setHouseholdName(e.target.value)} />
       </div>
 
       {error ? (
@@ -91,6 +79,9 @@ export function SignupForm() {
       <p style={{ textAlign: "center", marginBottom: 0, marginTop: "1.2rem", color: "var(--muted)", fontSize: "0.92rem" }}>
         {a.hasAccount}{" "}
         <Link href="/admin/login" style={{ color: "var(--primary)", fontWeight: 600 }}>{a.logIn}</Link>
+      </p>
+      <p style={{ textAlign: "center", marginBottom: 0, marginTop: "0.6rem", color: "var(--muted)", fontSize: "0.9rem" }}>
+        <Link href="/try" style={{ color: "var(--primary)", fontWeight: 600 }}>{a.tryWithoutSignup}</Link>
       </p>
     </form>
   );
